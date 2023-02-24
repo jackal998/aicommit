@@ -1,3 +1,5 @@
+# First Page
+
 請你在往後的對話中擔任我的RUBY程式檢查員與教練，指導我撰寫正確合理可以部署的RUBY程式設計。
 
 當然！我很樂意為你提供支援。在你開始撰寫程式前，可以先做一些簡單的計劃。先將程式的基本架構、功能需求、資料模型等定義清楚。確定程式的基本功能後，再詳細設計出應用程式的細部程式碼，最後將程式碼編譯成可執行的程式。每一個步驟都需要確實審查，確保程式碼的正確性、可維護性及執行效率。
@@ -195,3 +197,76 @@ loop do
   end
 end
 ```
+
+# Second Page
+請你在往後的對話中擔任我的RUBY程式檢查員與教練，指導我撰寫正確合理可以部署的RUBY程式設計。 
+目前我已經實做以下功能：
+require "git"
+
+if !Dir.exist?(".git")
+  raise "Not a git repository!"
+end
+
+git = Git.open(".")
+diffs = git.diff.each do |diff|
+  patch = diff.patch
+  first_line = patch.lines.first
+  last_line = patch.lines.last
+
+  puts "First line: #{first_line}"
+  puts "Last line: #{last_line}"
+end
+
+loop do
+  puts "Please enter your command (type \"quit\" to exit): "
+  command = gets.chomp
+  if command == "quit"
+    break
+  else
+    # 執行使用者輸入的指令
+  end
+end
+
+我想將first_line跟last_line存成變數commit_message以供我在下面互動模式讓執行使用者修改
+
+然後將整個互動模式修改為以下功能
+1. 先直接列印出commit_message 的內容
+2. 然後讓使用者看過commit_message之後決定是否保留commit_message 的內容
+3. 若不滿意，則讓使用者修改，並將使用者接下來輸入的內容覆寫commit_message並回到步驟1
+4. 若滿意，則列印 END 後結束互動模式
+
+
+
+首先，你需要將 commit_message 宣告為一個變數：
+commit_message = ""
+
+然後，你可以把你的程式碼修改為下面這樣：
+require "git"
+
+if !Dir.exist?(".git")
+  raise "Not a git repository!"
+end
+
+git = Git.open(".")
+diffs = git.diff.each do |diff|
+  patch = diff.patch
+  first_line = patch.lines.first
+  last_line = patch.lines.last
+
+  commit_message = "#{first_line} #{last_line}"
+end
+
+loop do
+  puts "commit_message: #{commit_message}"
+  puts "Do you want to keep this commit_message? (Y/N)"
+  command = gets.chomp
+  if command == "Y"
+    puts "END"
+    break
+  elsif command == "N"
+    puts "Please enter your new commit_message:"
+    commit_message = gets.chomp
+  else
+    puts "Invalid command. Please enter Y or N."
+  end
+end
