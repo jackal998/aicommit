@@ -4,22 +4,29 @@ if !Dir.exist?(".git")
   raise "Not a git repository!"
 end
 
+commit_message = ""
+
 git = Git.open(".")
+
 diffs = git.diff.each do |diff|
   patch = diff.patch
   first_line = patch.lines.first
   last_line = patch.lines.last
 
-  puts "First line: #{first_line}"
-  puts "Last line: #{last_line}"
+  commit_message = "#{first_line} #{last_line}"
 end
 
 loop do
-  puts "Please enter your command (type \"quit\" to exit): "
+  puts "commit_message: #{commit_message}"
+  puts "Do you want to keep this commit_message? (Y/N)"
   command = gets.chomp
-  if command == "quit"
+  if command == "Y"
+    puts "END"
     break
+  elsif command == "N"
+    puts "Please enter your new commit_message:"
+    commit_message = gets.chomp
   else
-    # 執行使用者輸入的指令
+    puts "Invalid command. Please enter Y or N."
   end
 end
