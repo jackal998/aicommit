@@ -1,0 +1,19 @@
+name: Check PR title
+permissions: write-all
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aslafy-z/conventional-pr-title-action@v3
+        with:
+          target-url: https://github.com/jackal998/aicommit/blob/3bf0cda757ff25f4982253a4a57447fd16053bfc/CONTRIBUTION.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
