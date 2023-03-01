@@ -1,6 +1,4 @@
 # Gemfile
 source "https://rubygems.org"
 
-gem "git"
-
-gem "rspec"
+gem "git", "~> 1.14.0"

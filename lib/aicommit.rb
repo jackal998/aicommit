@@ -20,13 +20,17 @@ loop do
   puts "commit_message: #{commit_message}"
   puts "Do you want to keep this commit_message? (Y/N)"
   command = gets.chomp
-  if command == "Y"
-    puts "END"
+  if command =~ /^[Yy]$/
+    git.commit_all(commit_message)
+    puts "Committed all changes with message: #{commit_message}"
     break
-  elsif command == "N"
+  elsif command =~ /^[Nn]$/
     puts "Please enter your new commit_message:"
     commit_message = gets.chomp
+  elsif command =~ /^[Qq]$/
+    puts "Quit without committing."
+    exit
   else
-    puts "Invalid command. Please enter Y or N."
+    puts "Invalid command. Please enter Y, N, or Q."
   end
 end
