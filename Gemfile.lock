@@ -3,6 +3,7 @@ GEM
   specs:
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
+    dotenv (2.8.1)
     git (1.14.0)
       addressable (~> 2.8)
       rchardet (~> 1.8)
@@ -20,6 +21,7 @@ PLATFORMS
   arm64-darwin-21
 
 DEPENDENCIES
+  dotenv
   git (~> 1.14.0)
   ruby-openai (~> 3.4.0)
 

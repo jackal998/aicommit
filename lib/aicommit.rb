@@ -1,9 +1,22 @@
 require "git"
 require "openai"
+require "dotenv/load"
+
+def save_api_key_to_env
+  puts "Please enter your OpenAI API key (or 'q' to quit):"
+  api_key = gets.chomp
+  if api_key.downcase == "q"
+    puts "Exiting program."
+    exit
+  end
+  File.write(".env", "OPENAI_API_KEY=#{api_key}")
+  ENV["OPENAI_API_KEY"] = api_key
+  puts "Your API key has been saved to .env"
+end
 
 def generate_commit_message(diff)
-  client = OpenAI::Client.new(access_token: "YOUR_API_KEY_HERE")
-  content = "Please generate a commit message based on the following diff:\n#{diff}"
+  client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+  content = "Please generate a commit message based on the following diff in one sentance:\n#{diff}"
   response = client.chat(
     parameters: {
       model: "gpt-3.5-turbo",
@@ -11,11 +24,22 @@ def generate_commit_message(diff)
     }
   )
 
+  if response.code == 401
+    puts "Invalid API key."
+    save_api_key_to_env
+
+    return generate_commit_message(diff)
+  end
+
   response.dig("choices", 0, "message", "content")
 end
 
 if !Dir.exist?(".git")
   raise "Not a git repository!"
+end
+
+if ENV["OPENAI_API_KEY"].nil?
+  save_api_key_to_env
 end
 
 patch_str = ""
