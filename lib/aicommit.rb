@@ -15,8 +15,10 @@ def save_api_key_to_env
 end
 
 def generate_commit_message(diff)
+  diff = diff[-3800..] || diff
   client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
-  content = "Please generate a commit message based on the following diff in one sentance:\n#{diff}"
+  content = "Please generate a commit message based on the following diff in one sentance and less than 80 letters:\n#{diff}"
+
   response = client.chat(
     parameters: {
       model: "gpt-3.5-turbo",
