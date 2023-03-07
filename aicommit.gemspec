@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = "aicommit"
-  s.version       = "0.0.1"
+  s.version       = "0.0.4"
   s.authors       = ["jackal998", "LinGaryTW"]
   s.email         = ["ej_lin2000@yahoo.com.tw"]
   s.summary       = "Use your own spell against you."
@@ -11,6 +11,8 @@ Gem::Specification.new do |s|
   s.files         = ["lib/aicommit.rb"]
   s.require_paths = ["lib"]
   s.add_dependency "git", "~> 1.14.0"
+  s.add_dependency "ruby-openai", "~> 3.4.0"
+  s.add_dependency "dotenv", "~> 2.8.1"
 
   s.executables << "aicommit"
 end
