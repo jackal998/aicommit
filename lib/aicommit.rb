@@ -1,6 +1,8 @@
 require "git"
 require "openai"
-require "dotenv/load"
+require "dotenv"
+
+Dotenv.load("#{File.expand_path("../..", __FILE__)}/.env")
 
 def save_api_key_to_env
   puts "Please enter your OpenAI API key (or 'q' to quit):"
@@ -9,8 +11,10 @@ def save_api_key_to_env
     puts "Exiting program."
     exit
   end
-  File.write(".env", "OPENAI_API_KEY=#{api_key}")
-  ENV["OPENAI_API_KEY"] = api_key
+
+  File.write("#{File.expand_path("../..", __FILE__)}/.env", "OPENAI_API_KEY=#{api_key}")
+
+  Dotenv.overload!("#{File.expand_path("../..", __FILE__)}/.env")
   puts "Your API key has been saved to .env"
 end
 
