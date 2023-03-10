@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
 
-require "aicommit"
+require_relative "../lib/aicommit"
+
+Aicommit.new.run
