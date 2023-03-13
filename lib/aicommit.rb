@@ -1,39 +1,28 @@
 require "git"
 require "openai"
 require "dotenv"
+require_relative "git_client"
 
 class Aicommit
   def initialize
     Dotenv.load("#{File.expand_path("../..", __FILE__)}/.env")
 
-    if !Dir.exist?(".git")
-      raise "Not a git repository!"
-    end
-
     if ENV["OPENAI_API_KEY"].nil?
       save_api_key_to_env
     end
-
-    @git = Git.open(".")
-    @patch_str = ""
   end
 
   def run
-    patch_diffs
+    patch_diffs = git_client.get_patch_str
 
-    if @patch_str.nil? || @patch_str.strip.empty?
-      puts "No changes detected, exiting program."
-      exit
-    end
-
-    commit_message = generate_commit_message(@patch_str)
+    commit_message = generate_commit_message(patch_diffs)
 
     loop do
       puts "commit_message: #{commit_message}"
       puts "Do you want to keep this commit_message? (Y/N) (or Q to quit)"
       command = gets.chomp
       if command.match?(/^[Yy]$/)
-        @git.commit_all(commit_message)
+        git_client.commit_all(commit_message)
         puts "Committed all changes with message: #{commit_message}"
         break
       elsif command.match?(/^[Nn]$/)
@@ -49,14 +38,6 @@ class Aicommit
   end
 
   private
-
-  def patch_diffs
-    @git.diff.each do |diff|
-      patch = diff.patch
-      @patch_str += "\n\n#{diff.path}\n"
-      @patch_str += patch
-    end
-  end
 
   def save_api_key_to_env
     puts "Please enter your OpenAI API key (or 'q' to quit):"
@@ -92,5 +73,9 @@ class Aicommit
     end
 
     response.dig("choices", 0, "message", "content").strip
+  end
+
+  def git_client
+    @_git_client ||= GitClient.new
   end
 end
