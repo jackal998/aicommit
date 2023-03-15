@@ -21,7 +21,7 @@ class Aicommit
       when /^[Yy]$/
         git_client.commit_all(commit_message)
         puts "Committed all changes with message: #{commit_message}"
-        break
+        exit
       when /^[Rr]$/
         puts "Regenerating..."
         commit_message = get_commit_message(patch_diffs)
@@ -46,9 +46,9 @@ class Aicommit
       @token_manager.write!("OPENAI_API_TOKEN")
 
       get_commit_message(diff)
+    else
+      response[:result]
     end
-
-    response[:result]
   end
 
   def git_client
