@@ -1,15 +1,11 @@
 require "git"
 require "openai"
-require "dotenv"
+require_relative "token_manager"
 require_relative "git_client"
 
 class Aicommit
   def initialize
-    Dotenv.load("#{File.expand_path("../..", __FILE__)}/.env")
-
-    if ENV["OPENAI_API_KEY"].nil?
-      save_api_key_to_env
-    end
+    @token_manager = TokenManager.new
   end
 
   def run
@@ -39,23 +35,9 @@ class Aicommit
 
   private
 
-  def save_api_key_to_env
-    puts "Please enter your OpenAI API key (or 'q' to quit):"
-    api_key = gets.chomp
-    if api_key.downcase == "q"
-      puts "Exiting program."
-      exit
-    end
-
-    File.write("#{File.expand_path("../..", __FILE__)}/.env", "OPENAI_API_KEY=#{api_key}")
-
-    Dotenv.overload!("#{File.expand_path("../..", __FILE__)}/.env")
-    puts "Your API key has been saved to .env"
-  end
-
   def generate_commit_message(diff)
     diff = diff[-3800..] || diff
-    client = OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"])
+    client = OpenAI::Client.new(access_token: @token_manager.fetch("OPENAI_API_TOKEN"))
     content = "Please generate a commit message based on the following diff in one sentance and less than 80 letters:\n#{diff}"
 
     response = client.chat(
@@ -67,7 +49,7 @@ class Aicommit
 
     if response.code == 401
       puts "Invalid API key."
-      save_api_key_to_env
+      @token_manager.write!("OPENAI_API_TOKEN")
 
       return generate_commit_message(diff)
     end
