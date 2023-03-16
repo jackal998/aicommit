@@ -2,6 +2,7 @@ require "git"
 require "openai"
 require_relative "token_manager"
 require_relative "git_client"
+require_relative "commit_message_generator"
 
 class Aicommit
   def initialize
@@ -11,20 +12,23 @@ class Aicommit
   def run
     patch_diffs = git_client.get_patch_str
 
-    commit_message = generate_commit_message(patch_diffs)
+    commit_message = get_commit_message(patch_diffs)
 
     loop do
       puts "commit_message: #{commit_message}"
-      puts "Do you want to keep this commit_message? (Y/N) (or Q to quit)"
-      command = gets.chomp
-      if command.match?(/^[Yy]$/)
+      puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
+      case gets.chomp
+      when /^[Yy]$/
         git_client.commit_all(commit_message)
         puts "Committed all changes with message: #{commit_message}"
         break
-      elsif command.match?(/^[Nn]$/)
+      when /^[Rr]$/
+        puts "Regenerating..."
+        commit_message = get_commit_message(patch_diffs)
+      when /^[Nn]$/
         puts "Please enter your new commit_message:"
         commit_message = gets.chomp
-      elsif command.match?(/^[Qq]$/)
+      when /^[Qq]$/
         puts "Quit without committing."
         exit
       else
@@ -35,29 +39,23 @@ class Aicommit
 
   private
 
-  def generate_commit_message(diff)
-    diff = diff[-3800..] || diff
-    client = OpenAI::Client.new(access_token: @token_manager.fetch("OPENAI_API_TOKEN"))
-    content = "Please generate a commit message based on the following diff in one sentance and less than 80 letters:\n#{diff}"
-
-    response = client.chat(
-      parameters: {
-        model: "gpt-3.5-turbo",
-        messages: [{role: "user", content: content}]
-      }
-    )
-
-    if response.code == 401
+  def get_commit_message(diff)
+    response = commit_message_generator.generate(diff)
+    if response[:code] == 401
       puts "Invalid API key."
       @token_manager.write!("OPENAI_API_TOKEN")
 
-      return generate_commit_message(diff)
+      get_commit_message(diff)
     end
 
-    response.dig("choices", 0, "message", "content").strip
+    response[:result]
   end
 
   def git_client
     @_git_client ||= GitClient.new
+  end
+
+  def commit_message_generator
+    @_commit_message_generator ||= CommitMessageGenerator.new(@token_manager.fetch("OPENAI_API_TOKEN"))
   end
 end
