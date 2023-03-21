@@ -56,6 +56,6 @@ class Aicommit
   end
 
   def commit_message_generator
-    @_commit_message_generator ||= CommitMessageGenerator.new(@token_manager.fetch("OPENAI_API_TOKEN"))
+    @_commit_message_generator = CommitMessageGenerator.new(@token_manager.fetch("OPENAI_API_TOKEN"))
   end
 end
