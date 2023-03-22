@@ -21,7 +21,7 @@ describe Aicommit do
         expect(git_client).to receive(:get_patch_str).and_return("diff")
 
         expect(CommitMessageGenerator).to receive(:new).with("INVALID_API_KEY").and_return(commit_message_generator)
-        expect(CommitMessageGenerator).to receive(:new).with("VALID_API_KEsY").and_return(commit_message_generator)
+        expect(CommitMessageGenerator).to receive(:new).with("VALID_API_KEY").and_return(commit_message_generator)
 
         expect(commit_message_generator).to receive(:generate).with("diff").and_return({code: 401, result: ""}, {code: 200, result: "commit message"})
         expect(token_manager).to receive(:write!).with("OPENAI_API_TOKEN")
