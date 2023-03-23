@@ -20,5 +20,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
-          gem build your-gemspec.gemspec
-          gem push your-gemspec-*.gem
+          gem build aicommit.gemspec
+          gem push aicommit-*.gem
