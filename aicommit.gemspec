@@ -1,6 +1,8 @@
+require_relative "lib/aicommit/version"
+
 Gem::Specification.new do |s|
   s.name          = "aicommit"
-  s.version       = "0.0.8"
+  s.version       = Aicommit::VERSION
   s.authors       = ["jackal998", "LinGaryTW"]
   s.email         = ["ej_lin2000@yahoo.com.tw"]
   s.summary       = "Use your own spell against you."
