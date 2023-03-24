@@ -20,9 +20,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
-          mkdir -p $HOME/.gem
-          touch $HOME/.gem/credentials
-          chmod 0600 $HOME/.gem/credentials
-          printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.gem/credentials
+          mkdir -p $HOME/.local/share/gem
+          touch $HOME/.local/share/gem/credentials
+          chmod 0600 $HOME/.local/share/gem/credentials
+          printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.local/share/gem/credentials
           gem build aicommit.gemspec
-          gem push --KEY rubygems_api_key aicommit-*.gem
+          gem push aicommit-*.gem
