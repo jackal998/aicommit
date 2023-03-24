@@ -12,7 +12,7 @@ class Aicommit
   def run
     patch_diffs = git_client.get_patch_str
 
-    commit_message = get_commit_message(patch_diffs)
+    commit_message = get_commit_message!(patch_diffs)
 
     loop do
       puts "commit_message: #{commit_message}"
@@ -24,7 +24,7 @@ class Aicommit
         exit
       when /^[Rr]$/
         puts "Regenerating..."
-        commit_message = get_commit_message(patch_diffs)
+        commit_message = get_commit_message!(patch_diffs)
       when /^[Nn]$/
         puts "Please enter your new commit_message:"
         commit_message = gets.chomp
@@ -39,13 +39,17 @@ class Aicommit
 
   private
 
-  def get_commit_message(diff)
+  def get_commit_message!(diff)
     response = commit_message_generator.generate(diff)
-    if response[:code] == 401
+    case response[:code]
+    when 401
       puts "Invalid API key."
       @token_manager.write!("OPENAI_API_TOKEN")
 
-      get_commit_message(diff)
+      get_commit_message!(diff)
+    when 500
+      puts "OpenAI connection timeout."
+      exit
     else
       response[:result]
     end

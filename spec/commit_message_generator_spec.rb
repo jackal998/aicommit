@@ -52,5 +52,15 @@ RSpec.describe CommitMessageGenerator do
         subject.generate(diff)
       end
     end
+
+    context "when API call times out" do
+      let(:diff) { "test diff" }
+
+      it "returns an error message" do
+        allow(client).to receive(:chat).and_raise(Net::ReadTimeout)
+
+        expect(subject.generate(diff)).to eq({result: "Net::ReadTimeout", code: 500})
+      end
+    end
   end
 end
