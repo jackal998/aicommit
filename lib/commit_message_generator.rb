@@ -14,6 +14,8 @@ class CommitMessageGenerator
     )
 
     {result: response.dig("choices", 0, "message", "content")&.strip, code: response.code}
+  rescue Net::ReadTimeout => e
+    {result: e.message, code: 500}
   end
 
   private

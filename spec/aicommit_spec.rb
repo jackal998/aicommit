@@ -12,6 +12,21 @@ describe Aicommit do
   end
 
   describe "#run" do
+    context "when no response from OpenAI" do
+      before do
+        allow(token_manager).to receive(:fetch).with("OPENAI_API_TOKEN").and_return("VALID_API_KEY")
+      end
+
+      it "deplays error message and exit" do
+        expect(git_client).to receive(:get_patch_str).and_return("diff")
+
+        expect(CommitMessageGenerator).to receive(:new).with("VALID_API_KEY").and_return(commit_message_generator)
+        expect(commit_message_generator).to receive(:generate).with("diff").and_return({code: 500, result: "Net::ReadTimeout"})
+
+        expect { subject.run }.to output(/OpenAI connection timeout./).to_stdout.and(raise_error(SystemExit))
+      end
+    end
+
     context "when invalid api token" do
       before do
         allow(token_manager).to receive(:fetch).with("OPENAI_API_TOKEN").and_return("INVALID_API_KEY", "VALID_API_KEY")
