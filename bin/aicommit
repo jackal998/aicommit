@@ -1,5 +1,30 @@
 #!/usr/bin/env ruby
 
+require "optparse"
 require_relative "../lib/aicommit"
+require_relative "../lib/aicommit/version"
 
-Aicommit.new.run
+options = {}
+parser = OptionParser.new do |op|
+  op.banner = "Usage: aicommit [options]"
+
+  op.on("-v", "--version", "Show version") do |v|
+    options[:version] = v
+  end
+
+  op.on("-c", "--config", "Set OpenAI API token") do |c|
+    options[:config] = c
+  end
+end
+
+parser.parse!
+
+if options[:version]
+  puts Aicommit::VERSION
+elsif options[:config]
+  TokenManager.new.write!("OPENAI_API_TOKEN")
+elsif ARGV.empty?
+  Aicommit.new.run
+else
+  puts parser.help
+end

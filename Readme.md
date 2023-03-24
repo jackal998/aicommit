@@ -3,7 +3,7 @@ Use your own spell against you.
 
 ## Setup
 ### Prerequisites
-- Ruby 2.5 or later
+- Ruby 2.6 or later
 - An OpenAI API key
 
 ### Installation
@@ -31,16 +31,27 @@ To generate a commit message based on the changes in your Git repository:
 
 3. Review the generated commit message.
 
-4. To commit the changes with the generated commit message, enter Y at the prompt.
-To enter a new commit message, enter N.
+4. To commit the tracked changes with the generated commit message, enter Y at the prompt.
+To regenerate a new commit message, enter R.
+To enter a new commit message by yourself, enter N.
 To quit without committing, enter Q.
 
-#### Uninstallation
-To uninstall AICommit, run:
+#### Set OpenAI API key
+
+To set your OpenAI API key manually, run the following command:
 
 ```bash
-gem uninstall aicommit
+aicommit --config
 ```
+
+#### Show version
+
+To show the version of AICommit, run the following command:
+
+```bash
+aicommit --version
+```
+
 ### How it works
 AICommit uses OpenAI's GPT-3.5 AI model to generate commit messages based on the changes in your Git repository.
 
@@ -50,4 +61,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ### License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/jackal998/aicommit/blob/95ca693e3cf4c87dcd4916aadb2459efea0823ae/LICENSE) file for details.
