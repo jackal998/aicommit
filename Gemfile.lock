@@ -1,20 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.8.1)
-      public_suffix (>= 2.0.2, < 6.0)
     diff-lcs (1.5.0)
     dotenv (2.8.1)
-    git (1.14.0)
-      addressable (~> 2.8)
-      rchardet (~> 1.8)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
     mini_mime (1.1.2)
     multi_xml (0.6.0)
-    public_suffix (5.0.1)
-    rchardet (1.8.0)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
@@ -36,7 +29,6 @@ PLATFORMS
 
 DEPENDENCIES
   dotenv
-  git (~> 1.14.0)
   rspec
   ruby-openai (~> 3.4.0)
 

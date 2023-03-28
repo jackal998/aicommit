@@ -1,4 +1,3 @@
-require "git"
 require "openai"
 require_relative "token_manager"
 require_relative "git_client"
@@ -10,9 +9,9 @@ class Aicommit
   end
 
   def run
-    patch_diffs = git_client.get_patch_str
+    diffs_str = git_client.git_diff_str
 
-    commit_message = get_commit_message!(patch_diffs)
+    commit_message = get_commit_message!(diffs_str)
 
     loop do
       puts "commit_message: #{commit_message}"
@@ -24,7 +23,7 @@ class Aicommit
         exit
       when /^[Rr]$/
         puts "Regenerating..."
-        commit_message = get_commit_message!(patch_diffs)
+        commit_message = get_commit_message!(diffs_str)
       when /^[Nn]$/
         puts "Please enter your new commit_message:"
         commit_message = gets.chomp

@@ -1,6 +1,8 @@
 require "openai"
 
 class CommitMessageGenerator
+  DIFF_LIMIT = 13000
+
   def initialize(access_token)
     @client = OpenAI::Client.new(access_token: access_token)
   end
@@ -21,7 +23,7 @@ class CommitMessageGenerator
   private
 
   def set_messages(diff)
-    diff = diff[-3800..] || diff
+    diff = diff[-DIFF_LIMIT..] || diff
     spell = "Please generate a commit message based on the following diff in one sentance and less than 80 letters: \n#{diff}"
 
     [{role: "user", content: spell}]
