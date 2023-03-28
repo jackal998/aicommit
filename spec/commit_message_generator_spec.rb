@@ -19,7 +19,7 @@ RSpec.describe CommitMessageGenerator do
       expect(subject.generate(diff)).to eq({result: "test message", code: 200})
     end
 
-    context "when diff is less than 3800 chars" do
+    context "when diff is less than #{described_class::DIFF_LIMIT} chars" do
       let(:diff) { "a" * 1000 }
 
       it "sends request to OpenAI with all diff" do
@@ -36,15 +36,15 @@ RSpec.describe CommitMessageGenerator do
       end
     end
 
-    context "when diff is more than 3800 chars" do
-      let(:diff) { "a" * 4000 }
+    context "when diff is more than  #{described_class::DIFF_LIMIT} chars" do
+      let(:diff) { "a" * 40000 }
 
-      it "sends request to OpenAI with last 3800 chars" do
+      it "sends request to OpenAI with last  #{described_class::DIFF_LIMIT} chars" do
         expect(client).to receive(:chat).with(
           parameters: {
             model: "gpt-3.5-turbo",
             messages: [
-              {role: "user", content: "Please generate a commit message based on the following diff in one sentance and less than 80 letters: \n#{diff[-3800..]}"}
+              {role: "user", content: "Please generate a commit message based on the following diff in one sentance and less than 80 letters: \n#{diff[-described_class::DIFF_LIMIT..]}"}
             ]
           }
         ).and_return(response)
