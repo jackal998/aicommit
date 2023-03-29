@@ -14,15 +14,18 @@ class Aicommit
     commit_message = get_commit_message!(diffs_str)
 
     loop do
-      puts "commit_message: #{commit_message}"
       puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
+      puts ""
+      puts commit_message
+      puts ""
       case gets.chomp
       when /^[Yy]$/
         git_client.commit_all(commit_message)
-        puts "Committed all changes with message: #{commit_message}"
+        puts "All changes have been successfully committed."
         exit
       when /^[Rr]$/
         puts "Regenerating..."
+        puts ""
         commit_message = get_commit_message!(diffs_str)
       when /^[Nn]$/
         puts "Please enter your new commit_message:"
@@ -31,7 +34,9 @@ class Aicommit
         puts "Quit without committing."
         exit
       else
-        puts "Invalid command. Please enter Y, N, or Q."
+        puts ""
+        puts "Invalid command. Please enter Y, N, or Q.".underline
+        puts ""
       end
     end
   end
@@ -42,7 +47,7 @@ class Aicommit
     response = commit_message_generator.generate(diff)
     case response[:code]
     when 401
-      puts "Invalid API key."
+      puts "Invalid API key.".red
       @token_manager.write!("OPENAI_API_TOKEN")
 
       get_commit_message!(diff)

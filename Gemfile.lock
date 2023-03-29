@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    colorize (0.8.1)
     diff-lcs (1.5.0)
     dotenv (2.8.1)
     httparty (0.21.0)
@@ -28,6 +29,7 @@ PLATFORMS
   arm64-darwin-21
 
 DEPENDENCIES
+  colorize
   dotenv
   rspec
   ruby-openai (~> 3.4.0)
