@@ -1,7 +1,7 @@
 class GitClient
   def initialize
     if !Dir.exist?(".git")
-      puts "Not a git repository!"
+      puts "Not a git repository!".red
       exit
     end
   end

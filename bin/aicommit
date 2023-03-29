@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "optparse"
+require "colorize"
 require_relative "../lib/aicommit"
 require_relative "../lib/aicommit/version"
 

@@ -36,7 +36,7 @@ class TokenManager
   def save_api_token_to_env!(key, api_token)
     File.write(ENV_PATH, "#{key}=#{api_token}")
     Dotenv.overload!(ENV_PATH)
-    puts "Your API token has been saved to .env"
+    puts "Your API token has been saved to .env".green
     api_token
   end
 end

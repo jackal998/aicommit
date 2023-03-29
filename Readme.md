@@ -31,7 +31,7 @@ To generate a commit message based on the changes in your Git repository:
 
 3. Review the generated commit message.
 
-4. To commit the tracked changes with the generated commit message, enter Y at the prompt.
+4. To commit the staged changes with the generated commit message, enter Y at the prompt.
 To regenerate a new commit message, enter R.
 To enter a new commit message by yourself, enter N.
 To quit without committing, enter Q.
@@ -43,6 +43,8 @@ To set your OpenAI API key manually, run the following command:
 ```bash
 aicommit --config
 ```
+Get your API key from [https://beta.openai.com/account/api-keys](https://beta.openai.com/account/api-keys)
+
 
 #### Show version
 

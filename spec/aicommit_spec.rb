@@ -61,7 +61,7 @@ describe Aicommit do
         allow(subject).to receive(:gets).and_return("Y\n")
         expect(git_client).to receive(:commit_all).with("commit message")
 
-        expect { subject.run }.to output(/commit_message: commit message/).to_stdout.and(raise_error(SystemExit))
+        expect { subject.run }.to output(/commit message/).to_stdout.and(raise_error(SystemExit))
       end
 
       context "when input is Y" do
@@ -73,7 +73,7 @@ describe Aicommit do
           allow(subject).to receive(:gets).and_return("Y\n")
           expect(git_client).to receive(:commit_all).with("commit message")
 
-          expect { subject.run }.to output(/Committed all changes with message: commit message/).to_stdout.and(raise_error(SystemExit))
+          expect { subject.run }.to output(/All changes have been successfully committed./).to_stdout.and(raise_error(SystemExit))
         end
       end
 
@@ -85,7 +85,7 @@ describe Aicommit do
           allow(subject).to receive(:gets).and_return("R\n", "Y\n")
           expect(git_client).to receive(:commit_all).with("new commit message")
 
-          expect { subject.run }.to output(/commit_message: new commit message/).to_stdout.and(raise_error(SystemExit))
+          expect { subject.run }.to output(/new commit message/).to_stdout.and(raise_error(SystemExit))
         end
       end
 
@@ -97,7 +97,7 @@ describe Aicommit do
           allow(subject).to receive(:gets).and_return("N\n", "new commit message\n", "Y\n")
           expect(git_client).to receive(:commit_all).with("new commit message")
 
-          expect { subject.run }.to output(/commit_message: new commit message/).to_stdout.and(raise_error(SystemExit))
+          expect { subject.run }.to output(/new commit message/).to_stdout.and(raise_error(SystemExit))
         end
       end
 
@@ -120,7 +120,7 @@ describe Aicommit do
           expect(commit_message_generator).to receive(:generate).with("diff").and_return({code: 200, result: "commit message"})
           expect(git_client).to receive(:commit_all).with("commit message")
 
-          expect { subject.run }.to output(/Invalid command/).to_stdout.and(raise_error(SystemExit))
+          expect { subject.run }.to output(/Invalid command./).to_stdout.and(raise_error(SystemExit))
         end
       end
     end

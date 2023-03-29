@@ -49,7 +49,7 @@ RSpec.describe CommitMessageGenerator do
           }
         ).and_return(response)
 
-        subject.generate(diff)
+        expect { subject.generate(diff) }.to output(/Warning: The Git diff is too lengthy \(exceeding the token limit\)./).to_stdout
       end
     end
 

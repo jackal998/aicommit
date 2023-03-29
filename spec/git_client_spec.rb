@@ -5,7 +5,7 @@ RSpec.describe GitClient do
     context "when not in a git repository" do
       it "puts error message and exits program" do
         allow(Dir).to receive(:exist?).with(".git").and_return(false)
-        expect { subject }.to output("Not a git repository!\n").to_stdout.and raise_error(SystemExit)
+        expect { subject }.to output(/Not a git repository!/).to_stdout.and raise_error(SystemExit)
       end
     end
 
