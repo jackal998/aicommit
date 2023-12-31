@@ -23,7 +23,13 @@ parser = OptionParser.new do |op|
   end
 end
 
-parser.parse!
+begin
+  parser.parse!
+rescue OptionParser::InvalidOption
+  puts "Invalid option, please see `aicommit -h` for help"
+  puts parser.help
+  exit
+end
 
 if options[:version]
   puts Aicommit::VERSION
