@@ -17,6 +17,10 @@ parser = OptionParser.new do |op|
   op.on("-c", "--config", "Set OpenAI API token") do |c|
     options[:config] = c
   end
+
+  op.on("-m", "--model", "Set OpenAI model") do |m|
+    options[:model] = m
+  end
 end
 
 parser.parse!
@@ -24,9 +28,17 @@ parser.parse!
 if options[:version]
   puts Aicommit::VERSION
 elsif options[:config]
-  TokenManager.new.write!("OPENAI_API_TOKEN")
+  Envs::OpenaiApiToken.new.update!
+elsif options[:model]
+  current_selected_model = Envs::SelectedModel.new.fetch
+  if current_selected_model
+    puts "Current model: #{current_selected_model}"
+    puts ""
+  end
+
+  Envs::SelectedModel.new.update!
 elsif ARGV.empty?
-  Aicommit.new.run
+  Aicommit.run
 else
   puts parser.help
 end

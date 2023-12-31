@@ -1,23 +1,27 @@
 require "openai"
-require_relative "token_manager"
+
+require_relative "envs/base"
+require_relative "envs/openai_api_token"
+require_relative "envs/selected_model"
+require_relative "ai_client"
 require_relative "git_client"
-require_relative "commit_message_generator"
 
 class Aicommit
-  def initialize
-    @token_manager = TokenManager.new
+  def initialize; end
+
+  def self.run(...)
+    new(...).run
   end
 
   def run
-    diffs_str = git_client.git_diff_str
+    git_diff_str = git_client.git_diff_str
 
-    commit_message = get_commit_message!(diffs_str)
+    commit_message = get_commit_message(git_diff_str)
 
     loop do
       puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
       puts ""
       puts commit_message
-      puts ""
       case gets.chomp
       when /^[Yy]$/
         git_client.commit_all(commit_message)
@@ -26,15 +30,15 @@ class Aicommit
       when /^[Rr]$/
         puts "Regenerating..."
         puts ""
-        commit_message = get_commit_message!(diffs_str)
+        commit_message = get_commit_message(git_diff_str)
       when /^[Nn]$/
         puts "Please enter your new commit_message:"
         commit_message = gets.chomp
+        puts ""
       when /^[Qq]$/
         puts "Quit without committing."
         exit
       else
-        puts ""
         puts "Invalid command. Please enter Y, N, or Q.".underline
         puts ""
       end
@@ -43,27 +47,15 @@ class Aicommit
 
   private
 
-  def get_commit_message!(diff)
-    response = commit_message_generator.generate(diff)
-    case response[:code]
-    when 401
-      puts "Invalid API key.".red
-      @token_manager.write!("OPENAI_API_TOKEN")
+  def get_commit_message(str)
+    ai_client.chat(str)
+  end
 
-      get_commit_message!(diff)
-    when 500
-      puts "OpenAI connection timeout."
-      exit
-    else
-      response[:result]
-    end
+  def ai_client
+    @_ai_client ||= AiClient.new
   end
 
   def git_client
     @_git_client ||= GitClient.new
-  end
-
-  def commit_message_generator
-    @_commit_message_generator = CommitMessageGenerator.new(@token_manager.fetch("OPENAI_API_TOKEN"))
   end
 end
