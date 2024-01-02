@@ -9,8 +9,8 @@ require_relative "git_client"
 class Aicommit
   def initialize; end
 
-  def self.run(...)
-    new(...).run
+  def self.run
+    new.run
   end
 
   def run
