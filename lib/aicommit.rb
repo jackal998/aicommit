@@ -1,10 +1,12 @@
 require "openai"
-
+require "json"
 require_relative "envs/base"
 require_relative "envs/openai_api_token"
 require_relative "envs/selected_model"
 require_relative "ai_client"
 require_relative "git_client"
+
+require "pry"
 
 class Aicommit
   def initialize; end
@@ -15,13 +17,14 @@ class Aicommit
 
   def run
     git_diff_str = git_client.git_diff_str
-
-    commit_message = get_commit_message(git_diff_str)
+    commit_message = ai_client.get_commit_message(git_diff_str)
 
     loop do
       puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
       puts ""
-      puts commit_message
+      puts "Commit subject: #{commit_message["subject"]}"
+      puts "Description: #{commit_message["description"]}"
+      puts ""
       case gets.chomp
       when /^[Yy]$/
         git_client.commit_all(commit_message)
@@ -30,7 +33,7 @@ class Aicommit
       when /^[Rr]$/
         puts "Regenerating..."
         puts ""
-        commit_message = get_commit_message(git_diff_str)
+        commit_message = ai_client.get_commit_message(git_diff_str)
       when /^[Nn]$/
         puts "Please enter your new commit_message:"
         commit_message = gets.chomp
@@ -46,10 +49,6 @@ class Aicommit
   end
 
   private
-
-  def get_commit_message(str)
-    ai_client.chat(str)
-  end
 
   def ai_client
     @_ai_client ||= AiClient.new

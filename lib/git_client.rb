@@ -19,6 +19,6 @@ class GitClient
   end
 
   def commit_all(message)
-    `git commit -m "#{message}"`
+    `git commit -m "#{message["subject"]}" -m "#{message["description"]}"`
   end
 end
