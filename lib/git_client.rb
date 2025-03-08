@@ -14,18 +14,19 @@ class GitClient
     git_diff_staged
   end
 
-  def diff_from_branch_root(base_branch = "main")
-    merge_base = `git merge-base HEAD #{base_branch}`.strip
+  def diff_from_branch_root(base_ref = "main")
+    base_commit =
+      if is_commit_sha?(base_ref)
+        base_ref
+      else
+        `git merge-base HEAD #{base_ref}`.strip
+      end
 
-    if merge_base.empty?
-      exit_program("Couldn't determine branch root relative to #{base_branch}")
-    end
+    exit_program("Couldn't determine base commit relative to #{base_ref}") if base_commit.empty?
 
-    diff = `git diff #{merge_base} HEAD`
+    diff = `git diff #{base_commit} HEAD`
 
-    if diff.empty?
-      exit_program("No changes detected between branch root and HEAD")
-    end
+    exit_program("No changes detected between base commit and HEAD") if diff.empty?
 
     diff
   end
@@ -40,5 +41,12 @@ class GitClient
     puts message
     puts "exiting program."
     exit
+  end
+
+  def is_commit_sha?(ref)
+    return false unless ref.match?(/^[0-9a-f]{7,40}$/i)
+
+    output = `git cat-file -t #{ref}`
+    output.strip == "commit"
   end
 end

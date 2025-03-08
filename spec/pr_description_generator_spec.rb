@@ -1,10 +1,12 @@
 require "pr_description_generator"
 require "git_client"
+require "ai_client"
 
 RSpec.describe PrDescriptionGenerator do
   let(:git_client) { instance_double("GitClient") }
-  let(:openai_client) { instance_double("OpenAI::Client") }
+  let(:ai_client) { instance_double("AiClient") }
   let(:base_branch) { "develop" }
+  let(:commit_sha) { "abc123def456" }
   let(:diff) { "sample diff content" }
   let(:pr_description) do
     {
@@ -13,53 +15,62 @@ RSpec.describe PrDescriptionGenerator do
     }
   end
 
-  let(:api_response) do
-    {
-      "choices" => [
-        {
-          "message" => {
-            "content" => pr_description.to_json
-          }
-        }
-      ]
-    }
-  end
-
   before do
     allow(GitClient).to receive(:new).and_return(git_client)
-    allow(Envs::OpenaiApiKey).to receive_message_chain(:new, :fetch!).and_return("sample_token")
-    allow(Envs::SelectedModel).to receive_message_chain(:new, :fetch!).and_return("selected_model")
+    allow(AiClient).to receive(:new).and_return(ai_client)
     allow(Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
-    allow(OpenAI::Client).to receive(:new).and_return(openai_client)
-    allow(git_client).to receive(:diff_from_branch_root).with(base_branch).and_return(diff)
   end
 
   describe "#initialize" do
-    it "creates a new GitClient and OpenAI client" do
+    it "creates a new GitClient and AiClient instance" do
       expect(GitClient).to receive(:new).and_return(git_client)
-      expect(OpenAI::Client).to receive(:new).with(access_token: "sample_token").and_return(openai_client)
+      expect(AiClient).to receive(:new).and_return(ai_client)
       subject
+    end
+
+    context "with base_ref parameter" do
+      subject { described_class.new(commit_sha) }
+
+      it "stores the base_ref parameter" do
+        expect(subject.instance_variable_get(:@base_ref)).to eq(commit_sha)
+      end
     end
   end
 
-  describe "#generate_pr_description" do
+  describe "#run" do
     before do
-      allow(openai_client).to receive(:chat).and_return(api_response)
-      allow(subject).to receive(:set_messages).and_return([{ role: "user", content: "prompt" }])
+      allow(File).to receive(:open).and_yield(StringIO.new)
+      allow(StringIO.new).to receive(:puts)
     end
 
-    it "calls the OpenAI API with the correct parameters" do
-      expect(openai_client).to receive(:chat).with(
-        parameters: {
-          model: anything,
-          response_format: { type: "json_object" },
-          messages: anything,
-          temperature: 0.7
-        }
-      ).and_return(api_response)
+    context "when no base_ref is specified in the constructor" do
+      before do
+        allow(git_client).to receive(:diff_from_branch_root).with(base_branch).and_return(diff)
+      end
 
-      result = subject.send(:generate_pr_description, diff)
-      expect(result).to eq(pr_description)
+      it "uses the configured base branch" do
+        expect(Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
+        expect(git_client).to receive(:diff_from_branch_root).with(base_branch).and_return(diff)
+        expect(ai_client).to receive(:get_pr_description).with(diff).and_return(pr_description)
+
+        expect { subject.run }.to output(/PR description has been saved to PR_DESCRIPTION.md/).to_stdout
+      end
+    end
+
+    context "when a base_ref is specified in the constructor" do
+      subject { described_class.new(commit_sha) }
+
+      before do
+        allow(git_client).to receive(:diff_from_branch_root).with(commit_sha).and_return(diff)
+      end
+
+      it "uses the specified base_ref" do
+        expect(Envs::BaseBranch).not_to receive(:new)
+        expect(git_client).to receive(:diff_from_branch_root).with(commit_sha).and_return(diff)
+        expect(ai_client).to receive(:get_pr_description).with(diff).and_return(pr_description)
+
+        expect { subject.run }.to output(/PR description has been saved to PR_DESCRIPTION.md/).to_stdout
+      end
     end
   end
 
@@ -78,35 +89,6 @@ RSpec.describe PrDescriptionGenerator do
       expect(file).to receive(:puts).with(pr_description["description"])
 
       subject.send(:save_pr_description, pr_description)
-    end
-  end
-
-  describe "#set_messages" do
-    it "creates a message with the prompt and diff content" do
-      expect(subject).to receive(:prompt).with(diff).and_return("formatted prompt")
-      result = subject.send(:set_messages, diff)
-      expect(result).to eq([{ role: "user", content: "formatted prompt" }])
-    end
-
-    context "when diff exceeds the limit" do
-      let(:long_diff) { "a" * (PrDescriptionGenerator::DIFF_LIMIT + 1000) }
-
-      it "trims the diff and warns the user" do
-        expect(subject).to receive(:warn_lengthy_diff)
-        expect(subject).to receive(:prompt).with(long_diff[-PrDescriptionGenerator::DIFF_LIMIT..]).and_return("formatted prompt")
-
-        result = subject.send(:set_messages, long_diff)
-        expect(result).to eq([{ role: "user", content: "formatted prompt" }])
-      end
-    end
-  end
-
-  describe "#prompt" do
-    it "creates a formatted prompt with the diff content" do
-      result = subject.send(:prompt, diff)
-      expect(result).to include("Instruction:")
-      expect(result).to include("Input:\n#{diff}")
-      expect(result).to include("Output:")
     end
   end
 end

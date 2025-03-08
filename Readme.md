@@ -6,7 +6,8 @@ A command-line tool that uses AI to generate commit messages and PR descriptions
 
 - Generate commit messages from staged changes using AI
 - Generate well-structured PR descriptions in markdown format
-- Support for customizing your main branch name for branch comparison
+- Support for customizing your base branch for branch comparison
+- Compare changes with a specific commit SHA directly
 - Interactive workflow with options to regenerate, customize, or approve AI-generated content
 - Easy configuration of OpenAI API key and model selection
 
@@ -30,10 +31,10 @@ You can also configure the OpenAI model to be used:
 aicommit --model
 ```
 
-To set your main branch name for PR description generation (defaults to 'main'):
+To set your base branch name for PR description generation (defaults to 'main'):
 
 ```bash
-aicommit --main-branch
+aicommit --base-branch
 ```
 
 ## Usage
@@ -58,13 +59,26 @@ The tool will:
 To generate a PR description based on changes from the branch root:
 
 ```bash
-aicommit -pd
+aicommit -p
 # or
 aicommit --pr-description
 ```
 
+You can also specify a specific branch name or commit SHA to compare against:
+
+```bash
+# Using a branch name
+aicommit -p develop
+
+# Using a specific commit SHA
+aicommit -p abc123f
+
+# Using a full commit SHA
+aicommit -p 1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
+```
+
 This will:
-1. Compare your current branch with the main branch (or your configured main branch)
+1. Compare your current branch with the specified base reference (branch name or commit SHA), or with the configured base branch, or with 'main' by default
 2. Generate a well-structured PR description in markdown format with:
    - A concise PR title
    - Overview of changes
@@ -83,8 +97,8 @@ This will:
 - `-v`, `--version`: Show the current version
 - `--key`: Set or update your OpenAI API key
 - `--model`: Set or update the OpenAI model
-- `--main-branch`: Set or update your main branch name
-- `-pd`, `--pr-description`: Generate a PR description
+- `--base-branch`: Set or update your base branch name
+- `-p [BASE_REF]`, `--pr-description [BASE_REF]`: Generate a PR description, optionally specifying a base reference (branch name or commit SHA)
 
 ## Requirements
 

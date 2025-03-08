@@ -41,10 +41,10 @@ RSpec.describe AiClient do
         parameters: hash_including(
           model: selected_model,
           response_format: {type: "json_object"},
-          messages: instance_of(Array),
           temperature: 0.7
         )
       )
+      expect(subject).to receive(:set_messages).with(diff, :commit_message).and_call_original
       subject.get_commit_message(diff)
     end
 
@@ -61,6 +61,144 @@ RSpec.describe AiClient do
         expect { subject.get_commit_message(diff) }.to raise_error(SystemExit)
           .and output(/There was an error/).to_stdout
       end
+    end
+  end
+
+  describe "#get_pr_description" do
+    let(:diff) { "Some Git diff" }
+    let(:json_content) { '{"title":"PR Title","description":"PR description with markdown"}' }
+    let(:api_response) {
+      {
+        "choices" => [
+          {
+            "message" => {
+              "content" => json_content
+            }
+          }
+        ]
+      }
+    }
+    let(:error_response) { {"error" => {"message" => "There was an error"}} }
+
+    before do
+      allow(client).to receive(:chat).and_return(api_response)
+    end
+
+    it "calls the OpenAI API with the provided diff" do
+      expect(client).to receive(:chat).with(
+        parameters: hash_including(
+          model: selected_model,
+          response_format: {type: "json_object"},
+          temperature: 0.7
+        )
+      )
+      expect(subject).to receive(:set_messages).with(diff, :pr_description).and_call_original
+      subject.get_pr_description(diff)
+    end
+
+    it "returns the parsed JSON response" do
+      expect(subject.get_pr_description(diff)).to eq({"title" => "PR Title", "description" => "PR description with markdown"})
+    end
+
+    context "when API returns an error" do
+      before do
+        allow(client).to receive(:chat).and_return(error_response)
+      end
+
+      it "displays the error message and exits" do
+        expect { subject.get_pr_description(diff) }.to raise_error(SystemExit)
+          .and output(/There was an error/).to_stdout
+      end
+    end
+  end
+
+  describe "#send_message" do
+    let(:messages) { "Test message content" }
+    let(:json_content) { '{"key":"value"}' }
+    let(:api_response) {
+      {
+        "choices" => [
+          {
+            "message" => {
+              "content" => json_content
+            }
+          }
+        ]
+      }
+    }
+
+    before do
+      allow(client).to receive(:chat).and_return(api_response)
+    end
+
+    it "calls the OpenAI API with the provided messages" do
+      expect(client).to receive(:chat).with(
+        parameters: hash_including(
+          model: selected_model,
+          response_format: {type: "json_object"},
+          messages: messages,
+          temperature: 0.7
+        )
+      )
+      subject.send_message(messages)
+    end
+
+    it "returns the parsed JSON response" do
+      expect(subject.send_message(messages)).to eq({"key" => "value"})
+    end
+  end
+
+  describe "#set_messages" do
+    let(:diff) { "Some Git diff" }
+
+    it "returns messages array for commit message" do
+      result = subject.send(:set_messages, diff, :commit_message)
+      expect(result).to be_an(Array)
+      expect(result.first[:role]).to eq("user")
+      expect(result.first[:content]).to include("Instruction:")
+      expect(result.first[:content]).to include("Input:\nSome Git diff")
+    end
+
+    it "returns messages array for PR description" do
+      result = subject.send(:set_messages, diff, :pr_description)
+      expect(result).to be_an(Array)
+      expect(result.first[:role]).to eq("user")
+      expect(result.first[:content]).to include("Instruction:")
+      expect(result.first[:content]).to include("Input:\nSome Git diff")
+    end
+
+    context "when diff exceeds the limit" do
+      let(:long_diff) { "a" * (AiClient::DIFF_LIMIT + 1000) }
+
+      it "trims the diff and warns the user" do
+        expect(subject).to receive(:warn_lengthy_diff)
+        result = subject.send(:set_messages, long_diff, :commit_message)
+        expect(result.first[:content]).to include("Input:\n#{'a' * AiClient::DIFF_LIMIT}")
+      end
+    end
+  end
+
+  describe "#prompt_for_commit_message" do
+    let(:diff) { "Some Git diff" }
+
+    it "creates a formatted prompt with the diff content" do
+      result = subject.send(:prompt_for_commit_message, diff)
+      expect(result).to include("Instruction:")
+      expect(result).to include("Input:\n#{diff}")
+      expect(result).to include("Output:")
+      expect(result).to include("Example:")
+    end
+  end
+
+  describe "#prompt_for_pr_description" do
+    let(:diff) { "Some Git diff" }
+
+    it "creates a formatted prompt with the diff content" do
+      result = subject.send(:prompt_for_pr_description, diff)
+      expect(result).to include("Instruction:")
+      expect(result).to include("Input:\n#{diff}")
+      expect(result).to include("Output:")
+      expect(result).to include("Example:")
     end
   end
 

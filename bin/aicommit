@@ -11,6 +11,11 @@ options = {}
 parser = OptionParser.new do |op|
   op.banner = "Usage: aicommit [options]"
 
+  op.on("-p [BASE_REF]", "--pr-description [BASE_REF]", "Generate PR description, optionally specify a base ref (branch name or commit SHA)") do |pr|
+    options[:pr_description] = true
+    options[:pr_base_ref] = pr
+  end
+
   op.on("-v", "--version", "Show version") do |v|
     options[:version] = v
   end
@@ -25,10 +30,6 @@ parser = OptionParser.new do |op|
 
   op.on("--base-branch", "Set base branch name") do |bb|
     options[:base_branch] = bb
-  end
-
-  op.on("-pd", "--pr-description", "Generate PR description") do |pr|
-    options[:pr_description] = pr
   end
 end
 
@@ -55,7 +56,7 @@ elsif options[:model]
 elsif options[:base_branch]
   Envs::BaseBranch.new.update!
 elsif options[:pr_description]
-  PrDescriptionGenerator.new.run
+  PrDescriptionGenerator.new(options[:pr_base_ref]).run
 elsif ARGV.empty?
   Aicommit.run
 else
