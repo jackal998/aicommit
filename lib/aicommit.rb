@@ -1,7 +1,7 @@
 require "openai"
 require "json"
 require_relative "envs/base"
-require_relative "envs/openai_api_token"
+require_relative "envs/openai_api_key"
 require_relative "envs/selected_model"
 require_relative "ai_client"
 require_relative "git_client"

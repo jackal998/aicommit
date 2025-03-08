@@ -37,6 +37,8 @@ module Envs
         puts "Invalid selection, exiting program."
         exit
       end
+
+      user_input
     end
   end
 end

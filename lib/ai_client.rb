@@ -2,12 +2,12 @@ require "openai"
 require "json"
 
 class AiClient
-  DIFF_LIMIT = 100000
+  DIFF_LIMIT = 1000000
 
   attr_reader :access_token, :client
 
   def initialize(access_token = nil)
-    @access_token = access_token || Envs::OpenaiApiToken.new.fetch!
+    @access_token = access_token || Envs::OpenaiApiKey.new.fetch!
     @client = OpenAI::Client.new(access_token: @access_token)
   end
 

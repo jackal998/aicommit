@@ -5,6 +5,7 @@ require "optparse"
 require "colorize"
 require_relative "../lib/aicommit"
 require_relative "../lib/aicommit/version"
+require_relative "../lib/pr_description_generator"
 
 options = {}
 parser = OptionParser.new do |op|
@@ -21,6 +22,14 @@ parser = OptionParser.new do |op|
   op.on("--model", "Set OpenAI model") do |m|
     options[:model] = m
   end
+
+  op.on("--main-branch", "Set main branch name") do |mb|
+    options[:main_branch] = mb
+  end
+
+  op.on("-pd", "--pr-description", "Generate PR description") do |pr|
+    options[:pr_description] = pr
+  end
 end
 
 begin
@@ -33,8 +42,8 @@ end
 
 if options[:version]
   puts Aicommit::VERSION
-elsif options[:config]
-  Envs::OpenaiApiToken.new.update!
+elsif options[:key]
+  Envs::OpenaiApiKey.new.update!
 elsif options[:model]
   current_selected_model = Envs::SelectedModel.new.fetch
   if current_selected_model
@@ -43,6 +52,10 @@ elsif options[:model]
   end
 
   Envs::SelectedModel.new.update!
+elsif options[:main_branch]
+  Envs::MainBranch.new.update!
+elsif options[:pr_description]
+  PrDescriptionGenerator.new.run
 elsif ARGV.empty?
   Aicommit.run
 else

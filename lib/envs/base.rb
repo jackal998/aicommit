@@ -35,7 +35,6 @@ module Envs
       exit_if_quit!(user_input)
 
       validate_user_input!(user_input)
-      user_input
     end
 
     def validate_user_input!(user_input)

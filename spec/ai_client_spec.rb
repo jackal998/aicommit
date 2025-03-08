@@ -1,5 +1,5 @@
 require "envs/base"
-require "envs/openai_api_token"
+require "envs/openai_api_key"
 require "envs/selected_model"
 require "ai_client"
 
@@ -11,7 +11,7 @@ RSpec.describe AiClient do
   subject { described_class.new(access_token) }
 
   before do
-    allow(Envs::OpenaiApiToken).to receive_message_chain(:new, :fetch!) { access_token }
+    allow(Envs::OpenaiApiKey).to receive_message_chain(:new, :fetch!) { access_token }
     allow(Envs::SelectedModel).to receive_message_chain(:new, :fetch!) { selected_model }
     allow(OpenAI::Client).to receive(:new).with(access_token: access_token).and_return(client)
   end
