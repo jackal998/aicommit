@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.license       = "MIT"
 
   s.files         = Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"]
-  s.add_dependency "ruby-openai", "~> 3.4.0"
+  s.add_dependency "ruby-openai", "~> 7.4.0"
   s.add_dependency "dotenv", "~> 2.8.1"
 
   s.executables << "aicommit"

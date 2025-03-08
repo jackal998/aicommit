@@ -1,7 +1,7 @@
 require "openai"
 
 class AiClient
-  DIFF_LIMIT = 10000
+  DIFF_LIMIT = 100000
 
   attr_reader :access_token, :client
 
@@ -16,7 +16,8 @@ class AiClient
       @client.chat(
         parameters: {
           model: selected_model,
-          messages: messages
+          messages: messages,
+          temperature: 0.7
         }
       )
     end
@@ -44,7 +45,7 @@ class AiClient
     puts "API request timed out".red
     exit
   rescue => e
-    puts e.to_s.red
+    puts e.response&.dig(:body, "error", "message").to_s.red
     exit
   end
 
@@ -56,10 +57,22 @@ class AiClient
     if diff.length > DIFF_LIMIT
       warn_lengthy_diff
     end
-    trimmed_diff = diff.length > DIFF_LIMIT ? diff[-DIFF_LIMIT..] : diff
-    prompt = "Please generate a commit message based on the following diff in one sentence and less than 80 letters: \n#{trimmed_diff}"
+    trimmed_diff = (diff.length > DIFF_LIMIT) ? diff[-DIFF_LIMIT..] : diff
 
-    [{ role: "user", content: prompt }]
+    [{role: "user", content: prompt(trimmed_diff)}]
+  end
+
+  def prompt(input)
+    <<~PROMPT
+      Instruction:
+      You are an expert developer tasked with generating a concise and informative commit message that clearly describes changes in a given git diff. Please analyze the provided diff and generate a commit message that includes a summary (title) and, if necessary, additional details. Ensure that the commit message follows standard conventions such as using the imperative mood and being clear for future reference.
+
+      Input:
+      #{input}
+
+      Output:
+      A well-structured commit message that accurately reflects the changes depicted in the diff.
+    PROMPT
   end
 
   def warn_lengthy_diff

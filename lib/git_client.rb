@@ -10,7 +10,8 @@ class GitClient
     git_diff_str = `git diff --staged`
 
     if git_diff_str.empty?
-      puts "No changes detected, exiting program."
+      puts "No changes detected, perhaps you didn't stage any changes?"
+      puts "exiting program."
       exit
     end
 

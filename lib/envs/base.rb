@@ -2,7 +2,7 @@ require "dotenv"
 
 module Envs
   class Base
-    ENV_PATH = "#{File.expand_path("../..", __FILE__)}/.env".freeze
+    ENV_PATH = ".env".freeze
 
     def initialize
       Dotenv.load(ENV_PATH)

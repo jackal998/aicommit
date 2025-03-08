@@ -14,7 +14,7 @@ RSpec.describe AiClient do
   before do
     allow(Envs::OpenaiApiToken).to receive_message_chain(:new, :fetch!) { access_token }
     allow(Envs::SelectedModel).to receive_message_chain(:new, :fetch!) { selected_model }
-    allow(OpenAI::Client).to receive(:new).with(access_token: access_token) { client }
+    allow(OpenAI::Client).to receive(:new).with(config: { access_token: access_token }) { client }
   end
 
   describe "#chat" do
