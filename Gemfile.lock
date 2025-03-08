@@ -27,6 +27,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  arm64-darwin-24
   x86_64-linux
 
 DEPENDENCIES
@@ -36,4 +37,4 @@ DEPENDENCIES
   ruby-openai (~> 3.4.0)
 
 BUNDLED WITH
-   2.3.12
+   2.6.2
