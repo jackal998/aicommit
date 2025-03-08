@@ -1,6 +1,6 @@
 module Envs
   class OpenaiApiKey < Base
-    KEY = "OPENAI_API_KEY".freeze
+    KEY = "AI_COMMIT_OPENAI_API_KEY".freeze
 
     private
 

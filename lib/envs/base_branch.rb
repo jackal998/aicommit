@@ -1,6 +1,6 @@
 module Envs
-  class MainBranch < Base
-    KEY = "AI_COMMIT_MAIN_BRANCH"
+  class BaseBranch < Base
+    KEY = "AI_COMMIT_BASE_BRANCH"
 
     private
 
@@ -9,7 +9,7 @@ module Envs
     end
 
     def get_user_input_display_messages
-      ["Please enter your main branch name (or 'q' to quit):"]
+      ["Please enter your base branch name (or 'q' to quit):"]
     end
 
     def validate_user_input!(branch_name)

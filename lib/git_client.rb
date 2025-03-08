@@ -14,11 +14,11 @@ class GitClient
     git_diff_staged
   end
 
-  def diff_from_branch_root(main_branch = "main")
-    merge_base = `git merge-base HEAD #{main_branch}`.strip
+  def diff_from_branch_root(base_branch = "main")
+    merge_base = `git merge-base HEAD #{base_branch}`.strip
 
     if merge_base.empty?
-      exit_program("Couldn't determine branch root relative to #{main_branch}")
+      exit_program("Couldn't determine branch root relative to #{base_branch}")
     end
 
     diff = `git diff #{merge_base} HEAD`

@@ -4,7 +4,7 @@ require "git_client"
 RSpec.describe PrDescriptionGenerator do
   let(:git_client) { instance_double("GitClient") }
   let(:openai_client) { instance_double("OpenAI::Client") }
-  let(:main_branch) { "develop" }
+  let(:base_branch) { "develop" }
   let(:diff) { "sample diff content" }
   let(:pr_description) do
     {
@@ -28,9 +28,10 @@ RSpec.describe PrDescriptionGenerator do
   before do
     allow(GitClient).to receive(:new).and_return(git_client)
     allow(Envs::OpenaiApiKey).to receive_message_chain(:new, :fetch!).and_return("sample_token")
-    allow(Envs::MainBranch).to receive_message_chain(:new, :fetch!).and_return(main_branch)
+    allow(Envs::SelectedModel).to receive_message_chain(:new, :fetch!).and_return("selected_model")
+    allow(Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
     allow(OpenAI::Client).to receive(:new).and_return(openai_client)
-    allow(git_client).to receive(:diff_from_branch_root).with(main_branch).and_return(diff)
+    allow(git_client).to receive(:diff_from_branch_root).with(base_branch).and_return(diff)
   end
 
   describe "#initialize" do

@@ -3,7 +3,7 @@ require "json"
 require_relative "envs/base"
 require_relative "envs/openai_api_key"
 require_relative "envs/selected_model"
-require_relative "envs/main_branch"
+require_relative "envs/base_branch"
 require_relative "ai_client"
 require_relative "git_client"
 
@@ -17,8 +17,8 @@ class PrDescriptionGenerator
   end
 
   def run
-    main_branch = Envs::MainBranch.new.fetch!
-    diff = @git_client.diff_from_branch_root(main_branch)
+    base_branch = Envs::BaseBranch.new.fetch!
+    diff = @git_client.diff_from_branch_root(base_branch)
     pr_description = generate_pr_description(diff)
 
     loop do

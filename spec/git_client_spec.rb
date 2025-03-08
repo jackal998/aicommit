@@ -34,36 +34,36 @@ RSpec.describe GitClient do
   end
 
   describe "#diff_from_branch_root" do
-    let(:main_branch) { "master" }
+    let(:base_branch) { "master" }
     let(:merge_base) { "abc123" }
     let(:diff_content) { "diff content from branch root" }
 
     before do
-      allow(subject).to receive(:`).with("git merge-base HEAD #{main_branch}").and_return("#{merge_base}\n")
+      allow(subject).to receive(:`).with("git merge-base HEAD #{base_branch}").and_return("#{merge_base}\n")
     end
 
     context "when merge base cannot be determined" do
       it "puts error message and exits program" do
-        allow(subject).to receive(:`).with("git merge-base HEAD #{main_branch}").and_return("")
-        expect { subject.diff_from_branch_root(main_branch) }.to output(/Couldn't determine branch root relative to #{main_branch}/).to_stdout.and raise_error(SystemExit)
+        allow(subject).to receive(:`).with("git merge-base HEAD #{base_branch}").and_return("")
+        expect { subject.diff_from_branch_root(base_branch) }.to output(/Couldn't determine branch root relative to #{base_branch}/).to_stdout.and raise_error(SystemExit)
       end
     end
 
     context "when there are no changes between branch root and HEAD" do
       it "puts error message and exits program" do
         allow(subject).to receive(:`).with("git diff #{merge_base} HEAD").and_return("")
-        expect { subject.diff_from_branch_root(main_branch) }.to output(/No changes detected between branch root and HEAD/).to_stdout.and raise_error(SystemExit)
+        expect { subject.diff_from_branch_root(base_branch) }.to output(/No changes detected between branch root and HEAD/).to_stdout.and raise_error(SystemExit)
       end
     end
 
     context "when there are changes between branch root and HEAD" do
       it "returns the git diff string" do
         allow(subject).to receive(:`).with("git diff #{merge_base} HEAD").and_return(diff_content)
-        expect(subject.diff_from_branch_root(main_branch)).to eq(diff_content)
+        expect(subject.diff_from_branch_root(base_branch)).to eq(diff_content)
       end
     end
 
-    context "when default main branch is used" do
+    context "when default base branch is used" do
       it "uses 'main' as the default branch name" do
         allow(subject).to receive(:`).with("git merge-base HEAD main").and_return("#{merge_base}\n")
         allow(subject).to receive(:`).with("git diff #{merge_base} HEAD").and_return(diff_content)
