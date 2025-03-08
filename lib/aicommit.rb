@@ -17,8 +17,8 @@ class Aicommit
   end
 
   def run
-    git_diff_str = git_client.git_diff_str
-    commit_message = ai_client.get_commit_message(git_diff_str)
+    staged_changes = git_client.staged_changes
+    commit_message = ai_client.get_commit_message(staged_changes)
 
     loop do
       puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
@@ -34,7 +34,7 @@ class Aicommit
       when /^[Rr]$/
         puts "Regenerating..."
         puts ""
-        commit_message = ai_client.get_commit_message(git_diff_str)
+        commit_message = ai_client.get_commit_message(staged_changes)
       when /^[Nn]$/
         puts "Please enter your new commit_message:"
         commit_message = gets.chomp

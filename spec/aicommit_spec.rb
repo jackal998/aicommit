@@ -12,7 +12,7 @@ describe Aicommit do
   describe "#run" do
     let(:commit_message) { {"subject" => "Test subject", "description" => "Test description"} }
 
-    before { allow(git_client).to receive(:git_diff_str).and_return("diff") }
+    before { allow(git_client).to receive(:staged_changes).and_return("diff") }
 
     it "displays commit options and processes user choice" do
       expect(ai_client).to receive(:get_commit_message).with("diff").and_return(commit_message)

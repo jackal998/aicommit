@@ -17,18 +17,18 @@ RSpec.describe GitClient do
     end
   end
 
-  describe "#git_diff_str" do
+  describe "#staged_changes" do
     context "when there are no changes" do
       it "puts error message and exits program" do
         allow(subject).to receive(:`).with("git diff --staged").and_return("")
-        expect { subject.git_diff_str }.to output(/No changes detected, perhaps you didn't stage any changes/).to_stdout.and raise_error(SystemExit)
+        expect { subject.staged_changes }.to output(/No changes detected, perhaps you didn't stage any changes/).to_stdout.and raise_error(SystemExit)
       end
     end
 
     context "when there are changes" do
       it "returns the git diff string" do
         allow(subject).to receive(:`).with("git diff --staged").and_return("diff content")
-        expect(subject.git_diff_str).to eq("diff content")
+        expect(subject.staged_changes).to eq("diff content")
       end
     end
   end
