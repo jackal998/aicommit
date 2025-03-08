@@ -5,10 +5,10 @@ require "ai_client"
 RSpec.describe Envs::SelectedModel do
   let(:model_data) do
     [
-      { "id" => "gpt-3.5-turbo", "owned_by" => "openai" },
-      { "id" => "gpt-3-abc", "owned_by" => "openai" },
-      { "id" => "vision-model", "owned_by" => "system" },
-      { "id" => "gpt-2.5-instruct", "owned_by" => "openai" }
+      {"id" => "gpt-3.5-turbo", "owned_by" => "openai"},
+      {"id" => "gpt-3-abc", "owned_by" => "openai"},
+      {"id" => "vision-model", "owned_by" => "system"},
+      {"id" => "gpt-2.5-instruct", "owned_by" => "openai"}
     ]
   end
 
@@ -22,7 +22,7 @@ RSpec.describe Envs::SelectedModel do
     allow(Dotenv).to receive(:load)
     allow(Dotenv).to receive(:overload!)
     allow(AiClient).to receive(:new).and_return(ai_client)
-    allow(ai_client).to receive(:models_list).and_return({ "data" => model_data })
+    allow(ai_client).to receive(:models_list).and_return({"data" => model_data})
   end
 
   describe "#fetch" do
@@ -88,8 +88,8 @@ RSpec.describe Envs::SelectedModel do
       subject.update!
       filtered_model_data = model_data.select do |m|
         described_class::ALLOWED_OWNERS.include?(m["owned_by"]) &&
-        !described_class::DISALLOED_TYPES.any? { |type| m["id"].include?(type) } &&
-        m["id"].start_with?(described_class::ALLOWED_ID_PREFIX)
+          !described_class::DISALLOED_TYPES.any? { |type| m["id"].include?(type) } &&
+          m["id"].start_with?(described_class::ALLOWED_ID_PREFIX)
       end
       selected_model = filtered_model_data.first["id"]
       expect(File).to have_received(:write).with(

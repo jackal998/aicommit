@@ -21,7 +21,7 @@ RSpec.describe GitClient do
     context "when there are no changes" do
       it "puts error message and exits program" do
         allow(subject).to receive(:`).with("git diff --staged").and_return("")
-        expect { subject.git_diff_str }.to output("No changes detected, exiting program.\n").to_stdout.and raise_error(SystemExit)
+        expect { subject.git_diff_str }.to output(/No changes detected, perhaps you didn't stage any changes/).to_stdout.and raise_error(SystemExit)
       end
     end
 
@@ -34,9 +34,11 @@ RSpec.describe GitClient do
   end
 
   describe "#commit_all" do
-    it "calls the git commit command with the message" do
-      expect(subject).to receive(:`).with('git commit -m "test message"')
-      subject.commit_all("test message")
+    let(:commit_message) { {"subject" => "Test subject", "description" => "Test description"} }
+
+    it "calls the git commit command with the subject and description" do
+      expect(subject).to receive(:`).with('git commit -m "Test subject" -m "Test description"')
+      subject.commit_all(commit_message)
     end
   end
 end

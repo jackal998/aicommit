@@ -9,7 +9,8 @@ require_relative "git_client"
 require "pry"
 
 class Aicommit
-  def initialize; end
+  def initialize
+  end
 
   def self.run
     new.run

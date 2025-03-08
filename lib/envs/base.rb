@@ -52,7 +52,7 @@ module Envs
       # parse all into insied .env, remove the value of the env_key, and write back
       env_contents = File.exist?(ENV_PATH) ? File.read(ENV_PATH) : ""
       env_contents.tap do |str|
-        str.sub!(/^#{Regexp.escape(env_key)}=.*$/, '') # remove existed env_key
+        str.sub!(/^#{Regexp.escape(env_key)}=.*$/, "") # remove existed env_key
         str.strip!
         str << "\n" unless env_contents.empty? || env_contents.end_with?("\n")
         str << "#{env_key}=#{value}\n"
