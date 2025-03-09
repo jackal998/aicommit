@@ -2,7 +2,7 @@ module Envs
   class SelectedModel < Base
     KEY = "AI_COMMIT_SELECTED_MODEL".freeze
     ALLOWED_OWNERS = ["openai", "system"].freeze
-    DISALLOED_TYPES = ["vision", "instruct"].freeze
+    DISALLOWED_TYPES = ["vision", "instruct"].freeze
     ALLOWED_ID_PREFIX = "gpt".freeze
 
     private
@@ -21,7 +21,7 @@ module Envs
     def model_allowed?(model)
       model["id"].start_with?(ALLOWED_ID_PREFIX) &&
         ALLOWED_OWNERS.include?(model["owned_by"]) &&
-        !DISALLOED_TYPES.any? { |type| model["id"].include?(type) }
+        !DISALLOWED_TYPES.any? { |type| model["id"].include?(type) }
     end
 
     def get_user_input_display_messages

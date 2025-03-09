@@ -88,7 +88,7 @@ RSpec.describe Envs::SelectedModel do
       subject.update!
       filtered_model_data = model_data.select do |m|
         described_class::ALLOWED_OWNERS.include?(m["owned_by"]) &&
-          !described_class::DISALLOED_TYPES.any? { |type| m["id"].include?(type) } &&
+          !described_class::DISALLOWED_TYPES.any? { |type| m["id"].include?(type) } &&
           m["id"].start_with?(described_class::ALLOWED_ID_PREFIX)
       end
       selected_model = filtered_model_data.first["id"]

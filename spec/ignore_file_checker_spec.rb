@@ -14,7 +14,7 @@ RSpec.describe IgnoreFileChecker do
       allow(File).to receive(:exist?).with(gitignore_path).and_return(gitignore_exists)
       allow(File).to receive(:read).with(gitignore_path).and_return(gitignore_content)
       allow(File).to receive(:write)
-      allow(STDOUT).to receive(:puts)
+      allow($stdout).to receive(:puts)
     end
 
     context "when .gitignore doesn't exist" do

@@ -11,7 +11,7 @@ class IgnoreFileChecker
       next unless File.exist?(ignore_file_path)
 
       raw_ignore_file_content = File.read(ignore_file_path)
-      return if parsed_ignore_file_content(ignore_file_path, raw_ignore_file_content).any? { |line| line.start_with?(Envs::Base::ENV_PATH) }
+      next if parsed_ignore_file_content(ignore_file_path, raw_ignore_file_content).any? { |line| line.start_with?(Envs::Base::ENV_PATH) }
 
       append_env_to_ignore_file(ignore_file_path, raw_ignore_file_content)
     end
