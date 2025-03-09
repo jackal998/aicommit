@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.description = "You dare use my own spells against me, Human?"
   s.homepage = "https://github.com/jackal998/aicommit"
   s.license = "MIT"
-  s.required_ruby_version = ">= 3.0.0"
+  s.required_ruby_version = ">= 2.7.0"
 
   s.files = Dir["CHANGELOG.md", "LICENSE", "README.md", "lib/**/*"]
   s.add_dependency "ruby-openai", "~> 7.4.0"

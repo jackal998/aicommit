@@ -10,6 +10,7 @@ A command-line tool that uses AI to generate commit messages and PR descriptions
 - Compare changes with a specific commit SHA directly
 - Interactive workflow with options to regenerate, customize, or approve AI-generated content
 - Easy configuration of OpenAI API key and model selection
+- Automatic .gitignore management to prevent accidental commits of sensitive data
 
 ## Installation
 
@@ -89,12 +90,7 @@ This will:
    - Implementation details
    - Technical decisions
    - Proper markdown formatting (headings, lists, code blocks)
-3. Allow you to:
-   - Approve the description (Y)
-   - Regenerate a new description (R)
-   - Create your own custom description (N)
-   - Quit without saving (Q)
-4. Save the approved PR description to a `PR_DESCRIPTION.md` file in your current directory
+3. Save the approved PR description to a `PR_DESCRIPTION.md` file in your current directory
 
 ## Command-Line Options
 
@@ -104,10 +100,18 @@ This will:
 - `--base-branch`: Set or update your base branch name
 - `-p [BASE_REF]`, `--pr-description [BASE_REF]`: Generate a PR description, optionally specifying a base reference (branch name or commit SHA)
 
+## Security
+
+AI Commit includes several security features:
+
+- Your OpenAI API key is stored in a local `.env` file
+- The tool automatically adds `.env` to your `.gitignore` file to prevent accidental exposure
+- No data is stored or sent anywhere except directly to the OpenAI API
+
 ## Requirements
 
 - Git repository
-- Ruby 2.6 or higher
+- Ruby 2.7 or higher
 - OpenAI API key
 
 ## Development
@@ -117,6 +121,8 @@ To contribute to this project:
 1. Clone the repository
 2. Install dependencies with `bundle install`
 3. Run tests with `bundle exec rspec`
+
+For more detailed information about contributing, see [CONTRIBUTION.md](CONTRIBUTION.md).
 
 ## License
 
