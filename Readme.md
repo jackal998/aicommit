@@ -37,6 +37,8 @@ To set your base branch name for PR description generation (defaults to 'main'):
 aicommit --base-branch
 ```
 
+> **Note:** Your configuration is stored in a local `.env` file in your project directory. This file contains your OpenAI API key and should not be committed to version control. The `.env` file is automatically added to `.gitignore` to prevent accidental commits.
+
 ## Usage
 
 ### Generate Commit Messages
@@ -49,6 +51,7 @@ aicommit
 ```
 
 The tool will:
+
 1. Analyze your staged changes
 2. Generate a commit message with a subject and description
 3. Allow you to approve, regenerate, or customize the message
@@ -78,6 +81,7 @@ aicommit -p 1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t
 ```
 
 This will:
+
 1. Compare your current branch with the specified base reference (branch name or commit SHA), or with the configured base branch, or with 'main' by default
 2. Generate a well-structured PR description in markdown format with:
    - A concise PR title
@@ -116,4 +120,4 @@ To contribute to this project:
 
 ## License
 
-See the [LICENSE](LICENSE) file for license rights and limitations. 
+See the [LICENSE](LICENSE) file for license rights and limitations.

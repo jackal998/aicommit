@@ -1,11 +1,16 @@
 #!/usr/bin/env ruby
-require "bundler/setup"
 
+# Load specific gem versions for aicommit without affecting the user's environment
+# This approach isolates our dependencies from the user's Gemfile
+require "rubygems"
+
+# Explicitly require our dependencies with their versions instead of using bundler/setup
 require "optparse"
 require "colorize"
 require_relative "../lib/aicommit"
 require_relative "../lib/aicommit/version"
 require_relative "../lib/pr_description_generator"
+require_relative "../lib/ignore_file_checker"
 
 options = {}
 parser = OptionParser.new do |op|
@@ -40,6 +45,8 @@ rescue OptionParser::InvalidOption
   puts parser.help
   exit
 end
+
+IgnoreFileChecker.new.ensure_env_in_ignore_file
 
 if options[:version]
   puts Aicommit::VERSION
