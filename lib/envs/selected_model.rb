@@ -1,6 +1,6 @@
 module Envs
   class SelectedModel < Base
-    KEY = "SELECTED_MODEL".freeze
+    KEY = "AI_COMMIT_SELECTED_MODEL".freeze
     ALLOWED_OWNERS = ["openai", "system"].freeze
     DISALLOED_TYPES = ["vision", "instruct"].freeze
     ALLOWED_ID_PREFIX = "gpt".freeze
@@ -37,6 +37,8 @@ module Envs
         puts "Invalid selection, exiting program."
         exit
       end
+
+      user_input
     end
   end
 end

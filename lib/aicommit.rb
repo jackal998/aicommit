@@ -1,15 +1,16 @@
 require "openai"
 require "json"
 require_relative "envs/base"
-require_relative "envs/openai_api_token"
+require_relative "envs/openai_api_key"
 require_relative "envs/selected_model"
+require_relative "envs/base_branch"
 require_relative "ai_client"
 require_relative "git_client"
 
-require "pry"
-
 class Aicommit
   def initialize
+    @git_client = GitClient.new
+    @ai_client = AiClient.new
   end
 
   def self.run
@@ -51,11 +52,5 @@ class Aicommit
 
   private
 
-  def ai_client
-    @_ai_client ||= AiClient.new
-  end
-
-  def git_client
-    @_git_client ||= GitClient.new
-  end
+  attr_reader :git_client, :ai_client
 end

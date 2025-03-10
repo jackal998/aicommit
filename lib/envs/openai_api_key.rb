@@ -1,6 +1,6 @@
 module Envs
-  class OpenaiApiToken < Base
-    KEY = "OPENAI_API_KEY".freeze
+  class OpenaiApiKey < Base
+    KEY = "AI_COMMIT_OPENAI_API_KEY".freeze
 
     private
 
@@ -14,6 +14,7 @@ module Envs
 
     def validate_user_input!(token)
       AiClient.new(token).verify_api_token!
+      token
     end
   end
 end
