@@ -9,3 +9,5 @@ group :development, :test do
   gem "rspec"
   gem "pry"
 end
+
+gem "simplecov", "~> 0.22.0", :groups => [:test, :development]

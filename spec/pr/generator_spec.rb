@@ -1,10 +1,10 @@
-require "pr_description_generator"
-require "git_client"
-require "ai_client"
+require "pr/generator"
+require "common/git_client"
+require "common/ai_client"
 
-RSpec.describe PrDescriptionGenerator do
-  let(:git_client) { instance_double("GitClient") }
-  let(:ai_client) { instance_double("AiClient") }
+RSpec.describe PR::Generator do
+  let(:git_client) { instance_double("Common::GitClient") }
+  let(:ai_client) { instance_double("Common::AiClient") }
   let(:base_branch) { "develop" }
   let(:commit_sha) { "abc123def456" }
   let(:diff) { "sample diff content" }
@@ -17,17 +17,17 @@ RSpec.describe PrDescriptionGenerator do
   let(:formatted_output) { "# #{pr_description["title"]}\n\n#{pr_description["description"]}" }
 
   before do
-    allow(GitClient).to receive(:new).and_return(git_client)
-    allow(AiClient).to receive(:new).and_return(ai_client)
-    allow(Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
+    allow(Common::GitClient).to receive(:new).and_return(git_client)
+    allow(Common::AiClient).to receive(:new).and_return(ai_client)
+    allow(Common::Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
     allow(git_client).to receive(:diff_from_branch_root).and_return(diff)
     allow(ai_client).to receive(:get_pr_description).with(diff).and_return(pr_description)
   end
 
   describe "#initialize" do
     it "creates a new GitClient and AiClient instance" do
-      expect(GitClient).to receive(:new).and_return(git_client)
-      expect(AiClient).to receive(:new).and_return(ai_client)
+      expect(Common::GitClient).to receive(:new).and_return(git_client)
+      expect(Common::AiClient).to receive(:new).and_return(ai_client)
       subject
     end
 
@@ -64,7 +64,7 @@ RSpec.describe PrDescriptionGenerator do
       end
 
       it "uses the configured base branch" do
-        expect(Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
+        expect(Common::Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
         expect(git_client).to receive(:diff_from_branch_root).with(base_branch).and_return(diff)
         expect(ai_client).to receive(:get_pr_description).with(diff).and_return(pr_description)
 
@@ -80,7 +80,7 @@ RSpec.describe PrDescriptionGenerator do
       end
 
       it "uses the specified base_ref" do
-        expect(Envs::BaseBranch).not_to receive(:new)
+        expect(Common::Envs::BaseBranch).not_to receive(:new)
         expect(git_client).to receive(:diff_from_branch_root).with(commit_sha).and_return(diff)
         expect(ai_client).to receive(:get_pr_description).with(diff).and_return(pr_description)
 
@@ -124,6 +124,16 @@ RSpec.describe PrDescriptionGenerator do
         expect_any_instance_of(described_class).to receive(:save_to_file).with(formatted_output, custom_filename)
         expect_any_instance_of(described_class).to receive(:copy_to_clipboard).with(formatted_output)
         expect { subject.run }.to output(/PR description saved to #{custom_filename}/).to_stdout
+      end
+    end
+
+    context "with no output options specified" do
+      subject { described_class.new(commit_sha, {}) }
+
+      it "doesn't save to file or copy to clipboard" do
+        expect_any_instance_of(described_class).not_to receive(:save_to_file)
+        expect_any_instance_of(described_class).not_to receive(:copy_to_clipboard)
+        expect { subject.run }.not_to output.to_stdout
       end
     end
   end

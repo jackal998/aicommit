@@ -1,11 +1,11 @@
-require "ignore_file_checker"
-require "envs/base"
+require "common/utils/ignore_file_checker"
+require "common/envs/base"
 
-RSpec.describe IgnoreFileChecker do
+RSpec.describe Common::Utils::IgnoreFileChecker do
   describe "#ensure_env_in_ignore_file" do
     let(:checker) { described_class.new }
     let(:gitignore_path) { ".gitignore" }
-    let(:env_path) { Envs::Base::ENV_PATH }
+    let(:env_path) { Common::Envs::Base::ENV_PATH }
     let(:gitignore_content) { "" }
 
     before do
@@ -85,6 +85,43 @@ RSpec.describe IgnoreFileChecker do
         expect(File).not_to receive(:write).with(gitignore_path, anything)
         checker.ensure_env_in_ignore_file
       end
+    end
+  end
+
+  describe "#parsed_ignore_file_content" do
+    let(:checker) { described_class.new }
+    let(:content) { "line1\nline2\n\nline3" }
+
+    it "parses gitignore content correctly" do
+      result = checker.send(:parsed_ignore_file_content, ".gitignore", content)
+      expect(result).to eq(["line1", "line2", "line3"])
+    end
+
+    it "raises an error for unknown ignore file types" do
+      expect { checker.send(:parsed_ignore_file_content, "unknown_file", content) }
+        .to raise_error(RuntimeError, "Unknown ignore file path: unknown_file")
+    end
+  end
+
+  describe "#append_env_to_ignore_file" do
+    let(:checker) { described_class.new }
+    let(:content) { "existing content" }
+    let(:env_path) { Common::Envs::Base::ENV_PATH }
+
+    before do
+      allow(File).to receive(:write)
+      allow($stdout).to receive(:puts)
+    end
+
+    it "appends env path to gitignore correctly" do
+      expected_content = "existing content\n\n# Environment variables\n#{env_path}\n"
+      expect(File).to receive(:write).with(".gitignore", expected_content)
+      checker.send(:append_env_to_ignore_file, ".gitignore", content)
+    end
+
+    it "raises an error for unknown ignore file types" do
+      expect { checker.send(:append_env_to_ignore_file, "unknown_file", content) }
+        .to raise_error(RuntimeError, "Unknown ignore file path: unknown_file")
     end
   end
 end

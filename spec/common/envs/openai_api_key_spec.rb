@@ -1,10 +1,10 @@
-require "envs/base"
-require "envs/openai_api_key"
-require "ai_client"
+require "common/envs/base"
+require "common/envs/openai_api_key"
+require "common/ai_client"
 
-RSpec.describe Envs::OpenaiApiKey do
+RSpec.describe Common::Envs::OpenaiApiKey do
   let(:api_token) { "sample_token" }
-  let(:ai_client) { instance_double("AiClient") }
+  let(:ai_client) { instance_double("Common::AiClient") }
   let(:env_path) { described_class::ENV_PATH }
   let(:existing_env_content) { "#{described_class::KEY}=old_token" }
 
@@ -55,7 +55,7 @@ RSpec.describe Envs::OpenaiApiKey do
       allow(File).to receive(:read).and_return(existing_env_content)
       allow(File).to receive(:write)
       allow(subject).to receive(:gets).and_return(api_token)
-      allow(AiClient).to receive(:new).with(api_token).and_return(ai_client)
+      allow(Common::AiClient).to receive(:new).with(api_token).and_return(ai_client)
       allow(ai_client).to receive(:verify_api_token!).and_return(true)
     end
 
