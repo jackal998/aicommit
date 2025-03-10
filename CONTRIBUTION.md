@@ -10,7 +10,48 @@ We welcome and encourage contributions from everyone. Here are the guidelines if
 4. Push your changes to your fork.
 5. Submit a Pull Request (PR).
 
-## PR title Format
+## Development Environment Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/aicommit.git
+   cd aicommit
+   ```
+
+2. Install dependencies:
+   ```bash
+   bundle install
+   ```
+
+3. Run tests:
+   ```bash
+   bundle exec rspec
+   ```
+
+## Project Structure
+
+- `bin/aicommit`: Main executable for the command-line tool
+- `lib/aicommit.rb`: Main class for generating commit messages
+- `lib/ai_client.rb`: Client for interacting with the OpenAI API
+- `lib/git_client.rb`: Client for Git operations
+- `lib/pr_description_generator.rb`: Generator for PR descriptions
+- `lib/ignore_file_checker.rb`: Ensures .env is in .gitignore
+- `lib/envs/`: Environment variable management
+  - `base.rb`: Base class for environment variables
+  - `openai_api_key.rb`: OpenAI API key management
+  - `selected_model.rb`: OpenAI model selection
+  - `base_branch.rb`: Base branch configuration
+
+## Adding Features
+
+When adding new features, please:
+
+1. Add appropriate tests in the `spec/` directory
+2. Document the feature in the README.md
+3. Ensure all existing tests pass
+4. Follow the existing code style and patterns
+
+## PR Title Format
 
 When submitting a PR, please make sure to provide a detailed description and conventional PR title of your changes. The PR should include the relevant issue numbers, and a list of the changes that were made.
 
@@ -35,7 +76,7 @@ The body should provide a detailed description of the changes. If the commit has
 
 The footer should include any relevant information such as related pull requests, issues, or notes for release.
 
-#### Squash Commit Message Header
+### Squash Commit Message Header
 ```
 <type>(<scope>): <short summary> (#<PR number>)
   │       │             │          │

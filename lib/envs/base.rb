@@ -48,7 +48,7 @@ module Envs
     end
 
     def updated_env_contents(env_key, value)
-      # parse all into insied .env, remove the value of the env_key, and write back
+      # parse all into inside .env, remove the value of the env_key, and write back
       env_contents = File.exist?(ENV_PATH) ? File.read(ENV_PATH) : ""
       env_contents.tap do |str|
         str.sub!(/^#{Regexp.escape(env_key)}=.*$/, "") # remove existed env_key

@@ -10,27 +10,11 @@
 /test/version_tmp/
 /tmp/
 
-# Used by dotenv library to load environment variables.
-.env
-
 # Ignore Byebug command history file.
 .byebug_history
 
-## Specific to RubyMotion:
-.dat*
-.repl_history
-build/
-*.bridgesupport
-build-iPhoneOS/
-build-iPhoneSimulator/
-
-## Specific to RubyMotion (use of CocoaPods):
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# vendor/Pods/
+# Ignore macOS specific files
+.DS_Store
 
 ## Documentation cache and generated files:
 /.yardoc/
@@ -53,4 +37,23 @@ build-iPhoneSimulator/
 .rvmrc
 
 # Used by RuboCop. Remote config files pulled in from inherit_from directive.
-# .rubocop-https?--*
+.rubocop-https?--*
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+*.sublime-project
+*.sublime-workspace
+
+# Environment variables
+.env
+
+# Generated PR descriptions
+PR_DESCRIPTION.md
+
+# RSpec state
+.rspec_status

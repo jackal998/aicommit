@@ -173,7 +173,7 @@ RSpec.describe AiClient do
       it "trims the diff and warns the user" do
         expect(subject).to receive(:warn_lengthy_diff)
         result = subject.send(:set_messages, long_diff, :commit_message)
-        expect(result.first[:content]).to include("Input:\n#{'a' * AiClient::DIFF_LIMIT}")
+        expect(result.first[:content]).to include("Input:\n#{"a" * AiClient::DIFF_LIMIT}")
       end
     end
   end
