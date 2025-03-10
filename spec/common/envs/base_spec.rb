@@ -1,25 +1,25 @@
 require "common/envs/base"
 
-RSpec.describe Common::Envs::Base do
-  # We need a concrete subclass to test the abstract base class
-  class TestEnv < described_class
-    KEY = "TEST_ENV_KEY"
+# We need a concrete subclass to test the abstract base class
+class TestEnv < Common::Envs::Base
+  KEY = "TEST_ENV_KEY"
 
-    private
+  private
 
-    def get_env_value!
-      get_user_input!
-    end
-
-    def get_user_input_display_messages
-      ["Please enter a test value:"]
-    end
-
-    def validate_user_input!(user_input)
-      user_input
-    end
+  def get_env_value!
+    get_user_input!
   end
 
+  def get_user_input_display_messages
+    ["Please enter a test value:"]
+  end
+
+  def validate_user_input!(user_input)
+    user_input
+  end
+end
+
+RSpec.describe Common::Envs::Base do
   let(:test_env) { TestEnv.new }
   let(:env_path) { described_class::ENV_PATH }
   let(:env_key) { TestEnv::KEY }

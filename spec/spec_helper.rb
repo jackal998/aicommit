@@ -7,11 +7,11 @@ SimpleCov.start do
     SimpleCov.result.format!
     puts "\nUncovered lines:"
     SimpleCov.result.files.each do |file|
-      next if file.covered_percent == 100.0
+      next if (file.covered_percent - 100.0).abs < 0.001
       puts "\n#{file.filename}:"
       file.lines.each_with_index do |line, index|
         next if line.coverage || line.never?
-        puts "  #{index+1}: #{line.src.strip}"
+        puts "  #{index + 1}: #{line.src.strip}"
       end
     end
   end

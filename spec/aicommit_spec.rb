@@ -11,7 +11,7 @@ describe Aicommit do
 
   describe "#generate_pr_description" do
     let(:base_ref) { "main" }
-    let(:options) { { clipboard: true } }
+    let(:options) { {clipboard: true} }
     let(:generator_instance) { instance_double(PR::Generator) }
 
     it "delegates to PR::Generator" do

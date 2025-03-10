@@ -78,11 +78,11 @@ module Common
       end
 
       prompt = case type
-               when :commit_message
-                 prompt_for_commit_message(message)
-               when :pr_description
-                 prompt_for_pr_description(message)
-               end
+      when :commit_message
+        prompt_for_commit_message(message)
+      when :pr_description
+        prompt_for_pr_description(message)
+      end
 
       [{"role" => "user", "content" => prompt}]
     end

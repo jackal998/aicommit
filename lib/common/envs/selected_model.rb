@@ -1,5 +1,5 @@
-require_relative 'base'
-require_relative '../ai_client'
+require_relative "base"
+require_relative "../ai_client"
 
 module Common
   module Envs

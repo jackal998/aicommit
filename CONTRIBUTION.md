@@ -31,12 +31,14 @@ We welcome and encourage contributions from everyone. Here are the guidelines if
 ## Project Structure
 
 - `bin/aicommit`: Main executable for the command-line tool
-- `lib/aicommit.rb`: Main class for generating commit messages
-- `lib/ai_client.rb`: Client for interacting with the OpenAI API
-- `lib/git_client.rb`: Client for Git operations
-- `lib/pr_description_generator.rb`: Generator for PR descriptions
-- `lib/ignore_file_checker.rb`: Ensures .env is in .gitignore
-- `lib/envs/`: Environment variable management
+- `lib/aicommit.rb`: Main module for the gem
+- `lib/aicommit/version.rb`: Version information
+- `lib/commit/generator.rb`: Generator for commit messages
+- `lib/pr/generator.rb`: Generator for PR descriptions
+- `lib/common/ai_client.rb`: Client for interacting with the OpenAI API
+- `lib/common/git_client.rb`: Client for Git operations
+- `lib/common/utils/ignore_file_checker.rb`: Ensures .env is in .gitignore
+- `lib/common/envs/`: Environment variable management
   - `base.rb`: Base class for environment variables
   - `openai_api_key.rb`: OpenAI API key management
   - `selected_model.rb`: OpenAI model selection
