@@ -6,18 +6,26 @@ class GitClient
     end
   end
 
-  def git_diff_str
-    git_diff_str = `git diff --staged`
+  def staged_changes
+    git_diff_staged = `git diff --staged`
 
-    if git_diff_str.empty?
-      puts "No changes detected, exiting program."
-      exit
+    if git_diff_staged.empty?
+      exit_program("No changes detected, perhaps you didn't stage any changes?")
+    else
+      git_diff_staged
     end
 
-    git_diff_str
   end
 
   def commit_all(message)
-    `git commit -m "#{message}"`
+    `git commit -m "#{message["subject"]}" -m "#{message["description"]}"`
+  end
+
+  private
+
+  def exit_program(message)
+    puts message
+    puts "exiting program."
+    exit
   end
 end

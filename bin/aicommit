@@ -14,11 +14,11 @@ parser = OptionParser.new do |op|
     options[:version] = v
   end
 
-  op.on("-c", "--config", "Set OpenAI API token") do |c|
-    options[:config] = c
+  op.on("--key", "Set OpenAI API key") do |k|
+    options[:key] = k
   end
 
-  op.on("-m", "--model", "Set OpenAI model") do |m|
+  op.on("--model", "Set OpenAI model") do |m|
     options[:model] = m
   end
 end
