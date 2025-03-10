@@ -92,6 +92,22 @@ This will:
    - Proper markdown formatting (headings, lists, code blocks)
 3. Save the approved PR description to a `PR_DESCRIPTION.md` file in your current directory
 
+You can customize the output destination:
+
+```bash
+# Save to a specific filename
+aicommit -p --file my_pr.md
+
+# Copy to clipboard instead of saving to a file
+aicommit -p --clipboard
+
+# Both save to file and copy to clipboard
+aicommit -p --file --clipboard
+
+# Save to a specific file and copy to clipboard
+aicommit -p --file custom_pr.md --clipboard
+```
+
 ## Command-Line Options
 
 - `-v`, `--version`: Show the current version
@@ -99,6 +115,8 @@ This will:
 - `--model`: Set or update the OpenAI model
 - `--base-branch`: Set or update your base branch name
 - `-p [BASE_REF]`, `--pr-description [BASE_REF]`: Generate a PR description, optionally specifying a base reference (branch name or commit SHA)
+- `--file [FILENAME]`: Save PR description to a file (default: `PR_DESCRIPTION.md`)
+- `--clipboard`: Copy PR description to clipboard
 
 ## Security
 

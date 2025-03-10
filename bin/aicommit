@@ -21,6 +21,14 @@ parser = OptionParser.new do |op|
     options[:pr_base_ref] = pr
   end
 
+  op.on("--file [FILENAME]", "Save PR description to a file (default: PR_DESCRIPTION.md)") do |filename|
+    options[:file] = filename || true
+  end
+
+  op.on("--clipboard", "Copy PR description to clipboard") do
+    options[:clipboard] = true
+  end
+
   op.on("-v", "--version", "Show version") do |v|
     options[:version] = v
   end
@@ -63,7 +71,10 @@ elsif options[:model]
 elsif options[:base_branch]
   Envs::BaseBranch.new.update!
 elsif options[:pr_description]
-  PrDescriptionGenerator.new(options[:pr_base_ref]).run
+  # By default, save to file if neither option is specified
+  options[:file] = true if !options[:file] && !options[:clipboard]
+
+  PrDescriptionGenerator.new(options[:pr_base_ref], options).run
 elsif ARGV.empty?
   Aicommit.run
 else
