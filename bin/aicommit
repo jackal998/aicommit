@@ -9,8 +9,6 @@ require "optparse"
 require "colorize"
 require_relative "../lib/aicommit"
 require_relative "../lib/aicommit/version"
-require_relative "../lib/pr_description_generator"
-require_relative "../lib/ignore_file_checker"
 
 options = {}
 parser = OptionParser.new do |op|
@@ -54,27 +52,27 @@ rescue OptionParser::InvalidOption
   exit
 end
 
-IgnoreFileChecker.new.ensure_env_in_ignore_file
+Aicommit.ensure_env_in_ignore_file
 
 if options[:version]
   puts Aicommit::VERSION
 elsif options[:key]
-  Envs::OpenaiApiKey.new.update!
+  Aicommit.set_openai_api_key
 elsif options[:model]
-  current_selected_model = Envs::SelectedModel.new.fetch
+  current_selected_model = Common::Envs::SelectedModel.new.fetch
   if current_selected_model
     puts "Current model: #{current_selected_model}"
     puts ""
   end
 
-  Envs::SelectedModel.new.update!
+  Aicommit.set_selected_model
 elsif options[:base_branch]
-  Envs::BaseBranch.new.update!
+  Aicommit.set_base_branch
 elsif options[:pr_description]
   # By default, save to file if neither option is specified
   options[:file] = true if !options[:file] && !options[:clipboard]
 
-  PrDescriptionGenerator.new(options[:pr_base_ref], options).run
+  Aicommit.generate_pr_description(options[:pr_base_ref], options)
 elsif ARGV.empty?
   Aicommit.run
 else
