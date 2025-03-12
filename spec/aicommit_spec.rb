@@ -1,67 +1,63 @@
 require "aicommit"
+require "commit/generator"
 
 describe Aicommit do
-  let(:ai_client) { instance_double(AiClient) }
-  let(:git_client) { instance_double(GitClient) }
-
-  before do
-    allow(AiClient).to receive(:new).and_return(ai_client)
-    allow(GitClient).to receive(:new).and_return(git_client)
+  describe "#run" do
+    it "delegates to Commit::Generator.run" do
+      expect(Commit::Generator).to receive(:run)
+      described_class.run
+    end
   end
 
-  describe "#run" do
-    let(:commit_message) { {"subject" => "Test subject", "description" => "Test description"} }
+  describe "#generate_pr_description" do
+    let(:base_ref) { "main" }
+    let(:options) { {clipboard: true} }
+    let(:generator_instance) { instance_double(PR::Generator) }
 
-    before { allow(git_client).to receive(:staged_changes).and_return("diff") }
-
-    it "displays commit options and processes user choice" do
-      expect(ai_client).to receive(:get_commit_message).with("diff").and_return(commit_message)
-      allow(subject).to receive(:gets).and_return("Y\n")
-
-      expect(git_client).to receive(:commit_all).with(commit_message)
-      expect { subject.run }.to output(/Do you want to keep this commit_message?/).to_stdout.and(raise_error(SystemExit))
+    it "delegates to PR::Generator" do
+      expect(PR::Generator).to receive(:new).with(base_ref, options).and_return(generator_instance)
+      expect(generator_instance).to receive(:run)
+      described_class.generate_pr_description(base_ref, options)
     end
+  end
 
-    context "when user decides to regenerate the message (R)" do
-      let(:new_commit_message) { {"subject" => "New subject", "description" => "New description"} }
+  describe "#set_openai_api_key" do
+    let(:openai_api_key) { instance_double(Common::Envs::OpenaiApiKey) }
 
-      it "regenerates commit message" do
-        expect(ai_client).to receive(:get_commit_message).with("diff").exactly(2).times
-          .and_return(commit_message, new_commit_message)
-        allow(subject).to receive(:gets).and_return("R\n", "Y\n")
-
-        expect(git_client).to receive(:commit_all).with(new_commit_message)
-        expect { subject.run }.to output(/Regenerating/).to_stdout.and(raise_error(SystemExit))
-      end
+    it "delegates to Common::Envs::OpenaiApiKey.update!" do
+      expect(Common::Envs::OpenaiApiKey).to receive(:new).and_return(openai_api_key)
+      expect(openai_api_key).to receive(:update!)
+      described_class.set_openai_api_key
     end
+  end
 
-    context "when user decides to enter a new message (N)" do
-      it "allows user to overwrite commit message" do
-        expect(ai_client).to receive(:get_commit_message).with("diff").and_return(commit_message)
-        allow(subject).to receive(:gets).and_return("N\n", "user entered message\n", "Y\n")
+  describe "#set_selected_model" do
+    let(:selected_model) { instance_double(Common::Envs::SelectedModel) }
 
-        expect(git_client).to receive(:commit_all).with("user entered message")
-        expect { subject.run }.to output(/Please enter your new commit_message/).to_stdout.and(raise_error(SystemExit))
-      end
+    it "delegates to Common::Envs::SelectedModel.update!" do
+      expect(Common::Envs::SelectedModel).to receive(:new).and_return(selected_model)
+      expect(selected_model).to receive(:update!)
+      described_class.set_selected_model
     end
+  end
 
-    context "when user quits (Q)" do
-      it "exits without committing" do
-        expect(ai_client).to receive(:get_commit_message).with("diff").and_return(commit_message)
-        allow(subject).to receive(:gets).and_return("Q\n")
+  describe "#set_base_branch" do
+    let(:base_branch) { instance_double(Common::Envs::BaseBranch) }
 
-        expect { subject.run }.to output(/Quit without committing/).to_stdout.and(raise_error(SystemExit))
-      end
+    it "delegates to Common::Envs::BaseBranch.update!" do
+      expect(Common::Envs::BaseBranch).to receive(:new).and_return(base_branch)
+      expect(base_branch).to receive(:update!)
+      described_class.set_base_branch
     end
+  end
 
-    context "when input is not Y, R, N, Q" do
-      it "shows warning message and loops again" do
-        expect(ai_client).to receive(:get_commit_message).with("diff").and_return(commit_message)
-        allow(subject).to receive(:gets).and_return("invalid\n", "Y\n")
+  describe "#ensure_env_in_ignore_file" do
+    let(:ignore_file_checker) { instance_double(Common::Utils::IgnoreFileChecker) }
 
-        expect(git_client).to receive(:commit_all).with(commit_message)
-        expect { subject.run }.to output(/Invalid command/).to_stdout.and(raise_error(SystemExit))
-      end
+    it "delegates to Common::Utils::IgnoreFileChecker.ensure_env_in_ignore_file" do
+      expect(Common::Utils::IgnoreFileChecker).to receive(:new).and_return(ignore_file_checker)
+      expect(ignore_file_checker).to receive(:ensure_env_in_ignore_file)
+      described_class.ensure_env_in_ignore_file
     end
   end
 end

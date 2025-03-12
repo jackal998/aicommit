@@ -1,6 +1,6 @@
-require "git_client"
+require "common/git_client"
 
-RSpec.describe GitClient do
+RSpec.describe Common::GitClient do
   describe "#initialize" do
     context "when not in a git repository" do
       it "puts error message and exits program" do

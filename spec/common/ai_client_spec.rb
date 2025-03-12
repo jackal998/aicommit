@@ -1,9 +1,9 @@
-require "envs/base"
-require "envs/openai_api_key"
-require "envs/selected_model"
-require "ai_client"
+require "common/envs/base"
+require "common/envs/openai_api_key"
+require "common/envs/selected_model"
+require "common/ai_client"
 
-RSpec.describe AiClient do
+RSpec.describe Common::AiClient do
   let(:access_token) { "test-token123" }
   let(:selected_model) { "selected_model" }
   let(:client) { instance_double(OpenAI::Client) }
@@ -11,8 +11,8 @@ RSpec.describe AiClient do
   subject { described_class.new(access_token) }
 
   before do
-    allow(Envs::OpenaiApiKey).to receive_message_chain(:new, :fetch!) { access_token }
-    allow(Envs::SelectedModel).to receive_message_chain(:new, :fetch!) { selected_model }
+    allow(Common::Envs::OpenaiApiKey).to receive_message_chain(:new, :fetch!) { access_token }
+    allow(Common::Envs::SelectedModel).to receive_message_chain(:new, :fetch!) { selected_model }
     allow(OpenAI::Client).to receive(:new).with(access_token: access_token).and_return(client)
   end
 
@@ -154,26 +154,27 @@ RSpec.describe AiClient do
     it "returns messages array for commit message" do
       result = subject.send(:set_messages, diff, :commit_message)
       expect(result).to be_an(Array)
-      expect(result.first[:role]).to eq("user")
-      expect(result.first[:content]).to include("Instruction:")
-      expect(result.first[:content]).to include("Input:\nSome Git diff")
+      expect(result.first["role"]).to eq("user")
+      expect(result.first["content"]).to include("Given the git diff below")
+      expect(result.first["content"]).to include("Here's the diff:\nSome Git diff")
     end
 
     it "returns messages array for PR description" do
       result = subject.send(:set_messages, diff, :pr_description)
       expect(result).to be_an(Array)
-      expect(result.first[:role]).to eq("user")
-      expect(result.first[:content]).to include("Instruction:")
-      expect(result.first[:content]).to include("Input:\nSome Git diff")
+      expect(result.first["role"]).to eq("user")
+      expect(result.first["content"]).to include("Generate a comprehensive PR description")
+      expect(result.first["content"]).to include("Here's the diff:\nSome Git diff")
     end
 
     context "when diff exceeds the limit" do
-      let(:long_diff) { "a" * (AiClient::DIFF_LIMIT + 1000) }
+      let(:long_diff) { "a" * (Common::AiClient::DIFF_LIMIT + 1000) }
 
       it "trims the diff and warns the user" do
         expect(subject).to receive(:warn_lengthy_diff)
         result = subject.send(:set_messages, long_diff, :commit_message)
-        expect(result.first[:content]).to include("Input:\n#{"a" * AiClient::DIFF_LIMIT}")
+        expect(result.first["content"]).to include("Given the git diff below")
+        expect(result.first["content"]).to include("Truncated diff (showing #{Common::AiClient::DIFF_LIMIT} out of #{long_diff.length} characters)")
       end
     end
   end
@@ -183,10 +184,10 @@ RSpec.describe AiClient do
 
     it "creates a formatted prompt with the diff content" do
       result = subject.send(:prompt_for_commit_message, diff)
-      expect(result).to include("Instruction:")
-      expect(result).to include("Input:\n#{diff}")
-      expect(result).to include("Output:")
-      expect(result).to include("Example:")
+      expect(result).to include("Given the git diff below")
+      expect(result).to include("Here's the diff:\n#{diff}")
+      expect(result).to include("Keep the first line under 50 characters")
+      expect(result).to include("Format the response as a JSON object")
     end
   end
 
@@ -195,10 +196,10 @@ RSpec.describe AiClient do
 
     it "creates a formatted prompt with the diff content" do
       result = subject.send(:prompt_for_pr_description, diff)
-      expect(result).to include("Instruction:")
-      expect(result).to include("Input:\n#{diff}")
-      expect(result).to include("Output:")
-      expect(result).to include("Example:")
+      expect(result).to include("Generate a comprehensive PR description")
+      expect(result).to include("Here's the diff:\n#{diff}")
+      expect(result).to include("Format as markdown")
+      expect(result).to include("Format response as a JSON object")
     end
   end
 
@@ -217,6 +218,40 @@ RSpec.describe AiClient do
     it "calls #models_list" do
       expect(client).to receive_message_chain(:models, :list).and_return(models_response)
       subject.verify_api_token!
+    end
+  end
+
+  describe "#safe_api_request" do
+    let(:success_response) { {"choices" => [{"message" => {"content" => "Success content"}}]} }
+    let(:error_response) { {"error" => {"message" => "API Error Message"}} }
+    let(:non_hash_response) { "Not a hash response" }
+
+    it "returns the response for successful requests" do
+      result = subject.send(:safe_api_request) { success_response }
+      expect(result).to eq(success_response)
+    end
+
+    it "handles error messages in hash responses" do
+      expect { subject.send(:safe_api_request) { error_response } }
+        .to output(/Error: API Error Message/).to_stdout
+        .and raise_error(SystemExit)
+    end
+
+    it "handles non-hash responses" do
+      result = subject.send(:safe_api_request) { non_hash_response }
+      expect(result).to eq(non_hash_response)
+    end
+
+    it "handles exceptions during API calls" do
+      expect { subject.send(:safe_api_request) { raise StandardError, "API connection failed" } }
+        .to output(/Error: API connection failed/).to_stdout
+        .and raise_error(SystemExit)
+    end
+  end
+
+  describe "#warn_lengthy_diff" do
+    it "outputs a warning message to stdout" do
+      expect { subject.send(:warn_lengthy_diff) }.to output(/Warning: The diff is quite large and will be truncated for the AI/).to_stdout
     end
   end
 end

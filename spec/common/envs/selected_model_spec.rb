@@ -1,8 +1,8 @@
-require "envs/base"
-require "envs/selected_model"
-require "ai_client"
+require "common/envs/base"
+require "common/envs/selected_model"
+require "common/ai_client"
 
-RSpec.describe Envs::SelectedModel do
+RSpec.describe Common::Envs::SelectedModel do
   let(:model_data) do
     [
       {"id" => "gpt-3.5-turbo", "owned_by" => "openai"},
@@ -13,7 +13,7 @@ RSpec.describe Envs::SelectedModel do
   end
 
   let(:saved_selected_model) { "selected_model" }
-  let(:ai_client) { instance_double("AiClient") }
+  let(:ai_client) { instance_double("Common::AiClient") }
   let(:env_path) { described_class::ENV_PATH }
   let(:existing_env_content) { "#{described_class::KEY}=old_model" }
 
@@ -21,7 +21,7 @@ RSpec.describe Envs::SelectedModel do
     allow(File).to receive(:expand_path).and_return("/fakepath")
     allow(Dotenv).to receive(:load)
     allow(Dotenv).to receive(:overload!)
-    allow(AiClient).to receive(:new).and_return(ai_client)
+    allow(Common::AiClient).to receive(:new).and_return(ai_client)
     allow(ai_client).to receive(:models_list).and_return({"data" => model_data})
   end
 

@@ -8,4 +8,5 @@ gem "colorize", "~> 1.0.0"
 group :development, :test do
   gem "rspec"
   gem "pry"
+  gem "simplecov"
 end

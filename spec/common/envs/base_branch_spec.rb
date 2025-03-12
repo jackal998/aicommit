@@ -1,8 +1,8 @@
-require "envs/base"
-require "envs/base_branch"
-require "ai_client"
+require "common/envs/base"
+require "common/envs/base_branch"
+require "common/ai_client"
 
-RSpec.describe Envs::BaseBranch do
+RSpec.describe Common::Envs::BaseBranch do
   let(:base_branch) { "sample_branch" }
   let(:env_path) { described_class::ENV_PATH }
   let(:existing_env_content) { "#{described_class::KEY}=old_branch" }
