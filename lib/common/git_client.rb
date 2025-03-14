@@ -8,11 +8,7 @@ module Common
     end
 
     def staged_changes
-      git_diff_staged = `git diff --staged`
-
-      exit_program("No changes detected, perhaps you didn't stage any changes?") if git_diff_staged.empty?
-
-      git_diff_staged
+      `git diff --staged`
     end
 
     def diff_from_branch_root(base_ref = "main")
@@ -34,6 +30,15 @@ module Common
 
     def commit_all(message)
       `git commit -m "#{message["subject"]}" -m "#{message["description"]}"`
+    end
+    
+    # Validate if a branch exists in the repository
+    def branch_exists?(branch_name)
+      return false if branch_name.nil? || branch_name.empty?
+      
+      # Check if it's a valid branch name
+      output = `git rev-parse --verify #{branch_name} 2>/dev/null`
+      $?.success? || is_commit_sha?(branch_name)
     end
 
     private

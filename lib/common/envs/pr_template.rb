@@ -28,7 +28,16 @@ module Common
           validate_template_path!(@custom_path)
           super(@custom_path)
         else
-          super
+          value = get_env_value!
+          # Only save if we have a non-nil value to save
+          if value
+            save_to_env!(self.class::KEY, value)
+            puts "#{self.class::KEY} saved to .env".green
+            value
+          else
+            puts "No PR template found or selected. Configuration not updated.".yellow
+            fetch
+          end
         end
       end
       
@@ -53,7 +62,6 @@ module Common
         end
       end
       
-      # Validate a template selection without updating configuration
       def validate_template_selection(selection_index, templates)
         unless [*(1..templates.size)].include?(selection_index)
           puts "Invalid selection, using default template.".red

@@ -18,47 +18,38 @@ module Commit
 
     def run
       staged_changes = git_client.staged_changes
+      
+      if staged_changes.strip.empty?
+        puts "No staged changes found. Please stage changes using 'git add' before running aicommit.".red
+        exit 1
+      end
+      
       commit_message = ai_client.get_commit_message(staged_changes)
 
       loop do
-        puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
+        puts "Do you want to use this commit message? (Y/R/Q)".green
+        puts "Y = Yes, commit with this message".blue
+        puts "R = Regenerate message".blue
+        puts "Q = Quit without committing".blue
         puts ""
-        puts "Commit subject: #{commit_message["subject"]}"
-        puts "Description: #{commit_message["description"]}"
+        puts "Commit subject: ".bold + "#{commit_message["subject"]}"
+        puts "Description: ".bold + "#{commit_message["description"]}"
         puts ""
+        
         case gets.chomp
         when /^[Yy]$/
           git_client.commit_all(commit_message)
-          puts "All changes have been successfully committed."
-          exit
+          puts "All changes have been successfully committed.".green
+          exit 0
         when /^[Rr]$/
-          puts "Regenerating..."
+          puts "Regenerating...".yellow
           puts ""
           commit_message = ai_client.get_commit_message(staged_changes)
-        when /^[Nn]$/
-          puts "Please enter your commit subject line:"
-          subject = gets.chomp
-          puts "Please enter your commit description (optional, press Enter twice to finish):"
-          description_lines = []
-          while (line = gets.chomp)
-            break if line.empty? && description_lines.last.to_s.empty?
-            description_lines << line
-          end
-          description = description_lines.join("\n").strip
-          
-          commit_message = {
-            "subject" => subject,
-            "description" => description
-          }
-          
-          git_client.commit_all(commit_message)
-          puts "All changes have been successfully committed."
-          exit
         when /^[Qq]$/
-          puts "Quit without committing."
-          exit
+          puts "Quit without committing.".yellow
+          exit 0
         else
-          puts "Invalid command. Please enter Y, N, or Q.".underline
+          puts "Invalid command. Please enter Y, R, or Q.".red.underline
           puts ""
         end
       end
