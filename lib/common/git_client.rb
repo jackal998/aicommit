@@ -8,11 +8,9 @@ module Common
     end
 
     def staged_changes
-      git_diff_staged = `git diff --staged`
-
-      exit_program("No changes detected, perhaps you didn't stage any changes?") if git_diff_staged.empty?
-
-      git_diff_staged
+      diff = `git diff --staged`
+      exit_program("No changes detected, perhaps you didn't stage any changes?") if diff.empty?
+      diff
     end
 
     def diff_from_branch_root(base_ref = "main")
@@ -36,7 +34,20 @@ module Common
       `git commit -m "#{message["subject"]}" -m "#{message["description"]}"`
     end
 
+    # Validate if a branch exists in the repository
+    def branch_exists?(branch_name)
+      return false if branch_name.nil? || branch_name.empty?
+
+      # Check if it's a valid branch name
+      branch_valid = verify_branch(branch_name)
+      branch_valid || is_commit_sha?(branch_name)
+    end
+
     private
+
+    def verify_branch(branch_name)
+      system("git rev-parse --verify #{branch_name} > /dev/null 2>&1")
+    end
 
     def exit_program(message)
       puts message
@@ -45,6 +56,7 @@ module Common
     end
 
     def is_commit_sha?(ref)
+      return false if ref.nil? || ref.empty?
       return false unless ref.match?(/^[0-9a-f]{7,40}$/i)
 
       output = `git cat-file -t #{ref}`
