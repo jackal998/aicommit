@@ -9,6 +9,15 @@ module Common
       DISALLOWED_TYPES = ["vision", "instruct"].freeze
       ALLOWED_ID_PREFIX = "gpt".freeze
 
+      def update!(provided_value = nil)
+        if provided_value
+          validate_model_id!(provided_value)
+          super(provided_value)
+        else
+          super
+        end
+      end
+
       private
 
       def get_env_value!
@@ -43,6 +52,15 @@ module Common
         end
 
         user_input
+      end
+
+      def validate_model_id!(model_id)
+        all_models = Common::AiClient.new.models_list["data"].map { |m| m["id"] }
+        unless all_models.include?(model_id)
+          puts "Error: Model '#{model_id}' is not available. Please choose from available models.".red
+          exit 1
+        end
+        model_id
       end
     end
   end

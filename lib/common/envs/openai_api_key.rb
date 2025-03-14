@@ -6,6 +6,17 @@ module Common
     class OpenaiApiKey < Base
       KEY = "AI_COMMIT_OPENAI_API_KEY".freeze
 
+      def update!(provided_value = nil)
+        if provided_value
+          validated_key = validate_token!(provided_value)
+          # Only proceed with update if validation passed
+          return nil unless validated_key
+          super(validated_key)
+        else
+          super
+        end
+      end
+
       private
 
       def get_env_value!
@@ -17,7 +28,15 @@ module Common
       end
 
       def validate_user_input!(token)
-        Common::AiClient.new(token).verify_api_token!
+        validate_token!(token)
+      end
+
+      def validate_token!(token)
+        unless Common::AiClient.new(token).verify_api_token!
+          puts "The API key could not be verified. Please check your key and try again.".red
+          return nil
+        end
+        
         token
       end
     end

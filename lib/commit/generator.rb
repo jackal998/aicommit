@@ -36,9 +36,24 @@ module Commit
           puts ""
           commit_message = ai_client.get_commit_message(staged_changes)
         when /^[Nn]$/
-          puts "Please enter your new commit_message:"
-          commit_message = gets.chomp
-          puts ""
+          puts "Please enter your commit subject line:"
+          subject = gets.chomp
+          puts "Please enter your commit description (optional, press Enter twice to finish):"
+          description_lines = []
+          while (line = gets.chomp)
+            break if line.empty? && description_lines.last.to_s.empty?
+            description_lines << line
+          end
+          description = description_lines.join("\n").strip
+          
+          commit_message = {
+            "subject" => subject,
+            "description" => description
+          }
+          
+          git_client.commit_all(commit_message)
+          puts "All changes have been successfully committed."
+          exit
         when /^[Qq]$/
           puts "Quit without committing."
           exit

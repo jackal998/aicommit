@@ -5,6 +5,14 @@ module Common
     class BaseBranch < Base
       KEY = "AI_COMMIT_BASE_BRANCH"
 
+      def update!(provided_value = nil)
+        if provided_value
+          super(validate_branch_name!(provided_value))
+        else
+          super
+        end
+      end
+
       private
 
       def get_env_value!
@@ -16,7 +24,11 @@ module Common
       end
 
       def validate_user_input!(branch_name)
-        branch_name || "main"
+        validate_branch_name!(branch_name)
+      end
+
+      def validate_branch_name!(branch_name)
+        branch_name.to_s.strip.empty? ? "main" : branch_name
       end
     end
   end
