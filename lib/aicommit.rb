@@ -59,6 +59,25 @@ module Aicommit
     puts "PR Output File: #{pr_output_file || "Not set"}"
   end
 
+  # Error handling utility
+  def self.handle_error(error)
+    if error.is_a?(OpenAI::Error)
+      case error.message
+      when /Incorrect API key provided/i, /Invalid authentication/i
+        puts "OpenAI API Error: Invalid API key. Please set a valid API key using 'aicommit --set-key'.".red
+      when /Rate limit/i
+        puts "OpenAI API Error: Rate limit exceeded. Please try again later.".red
+      when /Network error/i, /Connection refused/i, /timeout/i
+        puts "Network Error: Unable to connect to OpenAI API. Please check your internet connection.".red
+      else
+        puts "OpenAI API Error: #{error.message}".red
+      end
+    else
+      puts "Error: #{error.message}".red
+    end
+    exit 1
+  end
+
   # Ensure .env is properly set up in gitignore
   def self.ensure_env_in_ignore_file
     Common::Utils::IgnoreFileChecker.new.ensure_env_in_ignore_file

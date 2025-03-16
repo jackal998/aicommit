@@ -75,6 +75,11 @@ module PR
         copy_to_clipboard(output)
         puts "PR description copied to clipboard"
       end
+    rescue OpenAI::Error => e
+      Aicommit.handle_error(e)
+    rescue => e
+      puts "Error: #{e.message}".red
+      exit 1
     end
 
     private

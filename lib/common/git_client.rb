@@ -8,7 +8,9 @@ module Common
     end
 
     def staged_changes
-      `git diff --staged`
+      diff = `git diff --staged`
+      exit_program("No changes detected, perhaps you didn't stage any changes?") if diff.empty?
+      diff
     end
 
     def diff_from_branch_root(base_ref = "main")
@@ -37,7 +39,7 @@ module Common
       return false if branch_name.nil? || branch_name.empty?
       
       # Check if it's a valid branch name
-      output = `git rev-parse --verify #{branch_name} 2>/dev/null`
+      `git rev-parse --verify #{branch_name} 2>/dev/null`
       $?.success? || is_commit_sha?(branch_name)
     end
 

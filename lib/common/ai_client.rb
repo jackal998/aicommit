@@ -156,7 +156,7 @@ module Common
           current_file = line
           important_content << current_file
           line_count = 0
-        elsif current_file && line_count < sample_size && (line.start_with?("+") || line.start_with?("-"))
+        elsif current_file && line_count < sample_size && line.start_with?("+", "-")
           important_content << line
           line_count += 1
         end

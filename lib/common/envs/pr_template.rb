@@ -23,7 +23,7 @@ module Common
       def update!(provided_value = nil)
         if provided_value
           validate_template_path!(provided_value)
-          super(provided_value)
+          super
         elsif @custom_path
           validate_template_path!(@custom_path)
           super(@custom_path)
