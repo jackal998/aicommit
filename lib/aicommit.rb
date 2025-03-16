@@ -33,11 +33,11 @@ module Aicommit
   def self.set_base_branch(branch = nil)
     Common::Envs::BaseBranch.new.update!(branch)
   end
-  
+
   def self.set_pr_template(custom_path = nil)
     Common::Envs::PrTemplate.new(custom_path).update!
   end
-  
+
   def self.set_pr_output_file(filename = nil)
     Common::Envs::PrOutputFile.new.update!(filename)
   end

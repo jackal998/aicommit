@@ -7,11 +7,11 @@ require_relative "envs/pr_template"
 module Common
   class AiClient
     DIFF_LIMIT = 100000
-    
+
     # Define error types for better error handling
     class ApiError < StandardError
       attr_reader :type, :status_code
-      
+
       def initialize(message, type = :general, status_code = nil)
         @type = type
         @status_code = status_code
@@ -56,21 +56,19 @@ module Common
     end
 
     def verify_api_token!
-      begin
-        models_list
-        true
-      rescue ApiError => e
-        if e.type == :authentication
-          puts "Invalid API key: Authentication failed.".red
-          puts "Please check your API key and try again.".red
-        else
-          puts "API Error: #{e.message}".red
-        end
-        false
-      rescue => e
-        puts "Error checking API key: #{e.message}".red
-        false
+      models_list
+      true
+    rescue ApiError => e
+      if e.type == :authentication
+        puts "Invalid API key: Authentication failed.".red
+        puts "Please check your API key and try again.".red
+      else
+        puts "API Error: #{e.message}".red
       end
+      false
+    rescue => e
+      puts "Error checking API key: #{e.message}".red
+      false
     end
 
     private
@@ -84,9 +82,9 @@ module Common
         if error
           error_message = error["message"]
           error_type = error["type"] || "unknown"
-          error_code = error["code"]
+          error["code"]
           status_code = error["status"] || 500
-          
+
           # Categorize common errors for better user experience
           if status_code == 401 || error_type == "invalid_request_error" && error_message.include?("API key")
             raise ApiError.new(error_message, :authentication, status_code)
@@ -102,8 +100,8 @@ module Common
 
       response
     rescue ApiError => e
-      puts "Error: #{e.message} (Status code: #{e.status_code || 'unknown'})".red
-      
+      puts "Error: #{e.message} (Status code: #{e.status_code || "unknown"})".red
+
       # Additional helpful messages based on error type
       case e.type
       when :authentication
@@ -113,7 +111,7 @@ module Common
       when :server_error
         puts "OpenAI servers may be experiencing issues. Try again later.".yellow
       end
-      
+
       exit 1
     rescue => e
       puts "Error: #{e.message}".red
@@ -227,11 +225,9 @@ module Common
     def get_pr_template
       pr_template_path = Common::Envs::PrTemplate.new.fetch
       return nil unless pr_template_path && !pr_template_path.empty?
-      
+
       if File.exist?(pr_template_path)
         File.read(pr_template_path)
-      else
-        nil
       end
     end
   end

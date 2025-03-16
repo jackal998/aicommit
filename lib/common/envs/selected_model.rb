@@ -10,12 +10,8 @@ module Common
       ALLOWED_ID_PREFIX = "gpt".freeze
 
       def update!(provided_value = nil)
-        if provided_value
-          validate_model_id!(provided_value)
-          super(provided_value)
-        else
-          super
-        end
+        validate_model_id!(provided_value) if provided_value
+        super
       end
 
       private

@@ -4,7 +4,7 @@ module Common
   module Envs
     class PrTemplate < Base
       KEY = "AI_COMMIT_PR_TEMPLATE".freeze
-      
+
       # Locations where GitHub PR templates can be stored
       TEMPLATE_PATHS = {
         files: [
@@ -14,12 +14,12 @@ module Common
         ],
         dir: ".github/PULL_REQUEST_TEMPLATE"
       }.freeze
-      
+
       def initialize(custom_path = nil)
         super()
         @custom_path = custom_path
       end
-      
+
       def update!(provided_value = nil)
         if provided_value
           validate_template_path!(provided_value)
@@ -40,28 +40,28 @@ module Common
           end
         end
       end
-      
+
       # Make find_pr_templates public so it can be used by other classes
       def find_pr_templates
         @_templates ||= begin
           templates = []
-          
+
           # Check for individual template files
           TEMPLATE_PATHS[:files].each do |path|
             templates << path if File.exist?(path)
           end
-          
+
           # Check for multiple templates in directories
           if Dir.exist?(TEMPLATE_PATHS[:dir])
             Dir.glob(File.join(TEMPLATE_PATHS[:dir], "*.md")).each do |file|
               templates << file
             end
           end
-          
+
           templates
         end
       end
-      
+
       def validate_template_selection(selection_index, templates)
         unless [*(1..templates.size)].include?(selection_index)
           puts "Invalid selection, using default template.".red
@@ -69,7 +69,7 @@ module Common
         end
         true
       end
-      
+
       private
 
       def get_env_value!
@@ -81,14 +81,14 @@ module Common
             exit 1
           end
         end
-        
+
         templates = find_pr_templates
-        
+
         if templates.empty?
           puts "No PR templates found in repository."
           return nil
         end
-        
+
         templates[get_user_input!.to_i - 1]
       end
 
@@ -108,7 +108,7 @@ module Common
 
         user_input
       end
-      
+
       def validate_template_path!(path)
         unless path.nil? || File.exist?(path)
           puts "Error: Template file '#{path}' not found.".red
@@ -116,10 +116,10 @@ module Common
         end
         path
       end
-      
+
       def get_template_content(template_path)
         File.read(template_path) if template_path && File.exist?(template_path)
       end
     end
   end
-end 
+end

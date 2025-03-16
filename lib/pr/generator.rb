@@ -34,13 +34,13 @@ module PR
           # User wants to select from available templates for this run only
           template_selector = Common::Envs::PrTemplate.new
           templates = template_selector.find_pr_templates
-          
+
           if !templates.empty?
             puts "Please select a PR template for this run only: (1-#{templates.size})"
             templates.each_with_index do |template, index|
               puts "#{index + 1}. #{template}"
             end
-            
+
             user_input = gets.chomp
             if template_selector.validate_template_selection(user_input.to_i, templates)
               @template_path = templates[user_input.to_i - 1]
@@ -53,14 +53,14 @@ module PR
 
       base_ref = @base_ref || Common::Envs::BaseBranch.new.fetch!
       diff = git_client.diff_from_branch_root(base_ref)
-      
+
       # Create a temporary AI client with the template for this run
       temp_ai_client = if @template_path
-                        custom_ai_client_with_template(@template_path)
-                      else
-                        ai_client
-                      end
-                      
+        custom_ai_client_with_template(@template_path)
+      else
+        ai_client
+      end
+
       pr_description = temp_ai_client.get_pr_description(diff)
 
       output = format_pr_description(pr_description)
@@ -88,18 +88,16 @@ module PR
 
     def custom_ai_client_with_template(template_path)
       custom_client = Common::AiClient.new
-      
+
       # Monkey patch just for this instance to use our template
       def custom_client.get_pr_template
         if File.exist?(@_custom_template)
           File.read(@_custom_template)
-        else
-          nil
         end
       end
-      
+
       custom_client.instance_variable_set(:@_custom_template, template_path)
-      
+
       custom_client
     end
 
@@ -131,7 +129,7 @@ module PR
           filename = File.basename(filename)
         end
       end
-      
+
       # Write the file
       File.open(filename, "w") do |file|
         file.puts content

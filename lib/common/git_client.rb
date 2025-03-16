@@ -33,11 +33,11 @@ module Common
     def commit_all(message)
       `git commit -m "#{message["subject"]}" -m "#{message["description"]}"`
     end
-    
+
     # Validate if a branch exists in the repository
     def branch_exists?(branch_name)
       return false if branch_name.nil? || branch_name.empty?
-      
+
       # Check if it's a valid branch name
       `git rev-parse --verify #{branch_name} 2>/dev/null`
       $?.success? || is_commit_sha?(branch_name)

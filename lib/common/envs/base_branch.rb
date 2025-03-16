@@ -34,16 +34,16 @@ module Common
       def validate_branch_name!(branch_name)
         # Use default branch for empty input
         branch_to_check = branch_name.to_s.strip.empty? ? DEFAULT_BRANCH : branch_name
-        
+
         # Validate the branch exists
         git_client = Common::GitClient.new
-        
+
         unless git_client.branch_exists?(branch_to_check)
           puts "Error: Branch '#{branch_to_check}' does not exist in this repository.".red
           puts "Please enter a valid branch name or commit SHA.".yellow
           return nil
         end
-        
+
         branch_to_check
       end
     end

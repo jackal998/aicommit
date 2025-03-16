@@ -36,7 +36,7 @@ module Common
           puts "The API key could not be verified. Please check your key and try again.".red
           return nil
         end
-        
+
         token
       end
     end
