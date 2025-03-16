@@ -39,11 +39,15 @@ module Common
       return false if branch_name.nil? || branch_name.empty?
 
       # Check if it's a valid branch name
-      `git rev-parse --verify #{branch_name} 2>/dev/null`
-      $?.success? || is_commit_sha?(branch_name)
+      branch_valid = verify_branch(branch_name)
+      branch_valid || is_commit_sha?(branch_name)
     end
 
     private
+
+    def verify_branch(branch_name)
+      system("git rev-parse --verify #{branch_name} > /dev/null 2>&1")
+    end
 
     def exit_program(message)
       puts message
@@ -52,6 +56,7 @@ module Common
     end
 
     def is_commit_sha?(ref)
+      return false if ref.nil? || ref.empty?
       return false unless ref.match?(/^[0-9a-f]{7,40}$/i)
 
       output = `git cat-file -t #{ref}`
