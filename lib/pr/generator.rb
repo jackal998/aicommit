@@ -7,6 +7,7 @@ require_relative "../common/envs/pr_template"
 require_relative "../common/envs/pr_output_file"
 require_relative "../common/ai_client"
 require_relative "../common/git_client"
+require_relative "../common/os_client"
 require "fileutils"
 
 module PR
@@ -137,16 +138,7 @@ module PR
     end
 
     def copy_to_clipboard(content)
-      case RbConfig::CONFIG["host_os"]
-      when /darwin/
-        IO.popen("pbcopy", "w") { |f| f << content }
-      when /linux/
-        IO.popen("xclip -selection clipboard", "w") { |f| f << content }
-      when /mswin|mingw/
-        IO.popen("clip", "w") { |f| f << content }
-      else
-        puts "Warning: Clipboard functionality not supported on your OS".yellow
-      end
+      Common::OsClient.new.copy_to_clipboard(content)
     end
   end
 end
