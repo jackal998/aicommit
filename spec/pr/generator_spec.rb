@@ -1,4 +1,5 @@
 require "pr/generator"
+require "aicommit"
 require "common/git_client"
 require "common/ai_client"
 require "common/envs/pr_output_file"
@@ -23,46 +24,6 @@ RSpec.describe PR::Generator do
     allow(Common::Envs::BaseBranch).to receive_message_chain(:new, :fetch!).and_return(base_branch)
     allow(git_client).to receive(:diff_from_branch_root).and_return(diff)
     allow(ai_client).to receive(:get_pr_description).with(diff).and_return(pr_description)
-
-    # # Add String#red and #green methods for colorized output
-    # class String
-    #   def red
-    #     self
-    #   end
-
-    #   def green
-    #     self
-    #   end
-
-    #   def yellow
-    #     self
-    #   end
-    # end
-
-    # # Define the OpenAI module and Error class for testing
-    # module OpenAI
-    #   class Error < StandardError; end
-    # end
-
-    # # Define the Aicommit module with handle_error method
-    # module Aicommit
-    #   def self.handle_error(error)
-    #     # Just a stub
-    #   end
-    # end
-  end
-
-  after do
-    # Clean up our string methods
-    # class String
-    #   remove_method :red if method_defined?(:red)
-    #   remove_method :green if method_defined?(:green)
-    #   remove_method :yellow if method_defined?(:yellow)
-    # end
-
-    # Clean up our test modules
-    Object.send(:remove_const, :OpenAI) if defined?(OpenAI)
-    Object.send(:remove_const, :Aicommit) if defined?(Aicommit)
   end
 
   describe "#initialize" do

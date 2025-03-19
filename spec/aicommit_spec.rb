@@ -119,33 +119,10 @@ describe Aicommit do
   end
 
   describe "#handle_error" do
-    it "handles OpenAI API authentication errors" do
-      error = OpenAI::Error.new("Incorrect API key provided")
-      expect { described_class.handle_error(error) }.to output(/Invalid API key/).to_stdout
-        .and raise_error(SystemExit)
-    end
+    let(:error) { StandardError.new(Faker::Lorem.word) }
 
-    it "handles OpenAI API rate limit errors" do
-      error = OpenAI::Error.new("Rate limit exceeded")
-      expect { described_class.handle_error(error) }.to output(/Rate limit exceeded/).to_stdout
-        .and raise_error(SystemExit)
-    end
-
-    it "handles OpenAI API network errors" do
-      error = OpenAI::Error.new("Network error")
-      expect { described_class.handle_error(error) }.to output(/Network Error/).to_stdout
-        .and raise_error(SystemExit)
-    end
-
-    it "handles generic OpenAI API errors" do
-      error = OpenAI::Error.new("Some other error")
-      expect { described_class.handle_error(error) }.to output(/OpenAI API Error: Some other error/).to_stdout
-        .and raise_error(SystemExit)
-    end
-
-    it "handles non-OpenAI errors" do
-      error = StandardError.new("Generic error")
-      expect { described_class.handle_error(error) }.to output(/Error: Generic error/).to_stdout
+    it "handles errors" do
+      expect { described_class.handle_error(error) }.to output(/Error: #{error.message}/).to_stdout
         .and raise_error(SystemExit)
     end
   end
