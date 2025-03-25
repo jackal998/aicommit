@@ -11,6 +11,10 @@ A command-line tool that uses AI to generate commit messages and PR descriptions
 - Interactive workflow with options to regenerate, customize, or approve AI-generated content
 - Easy configuration of OpenAI API key and model selection
 - Automatic .gitignore management to prevent accidental commits of sensitive data
+- PR template support for generating standardized PR descriptions
+- Support for saving PR descriptions to a custom location or copying to clipboard
+- Enhanced error handling with helpful, context-aware error messages
+- Colorized console output for better readability
 
 ## Installation
 
@@ -20,22 +24,48 @@ gem install aicommit
 
 ## Configuration
 
-Before using the tool, you need to set your OpenAI API key:
+You can view your current configuration settings:
 
 ```bash
-aicommit --key
+aicommit --config
+```
+
+To set your OpenAI API key:
+
+```bash
+aicommit --set-key
+# or provide directly
+aicommit --set-key sk-your-key-here
 ```
 
 You can also configure the OpenAI model to be used:
 
 ```bash
-aicommit --model
+aicommit --set-model
 ```
 
 To set your base branch name for PR description generation (defaults to 'main'):
 
 ```bash
-aicommit --base-branch
+aicommit --set-base-branch
+# or provide directly
+aicommit --set-base-branch develop
+```
+
+To set a default PR template:
+
+```bash
+aicommit --set-pr-template
+# or provide a specific template path
+aicommit --set-pr-template .github/pull_request_template.md
+```
+
+To set a default output file for PR descriptions:
+
+```bash
+aicommit --set-pr-output-file
+# or provide a specific filename
+aicommit --set-pr-output-file docs/PR_DESCRIPTION.md
 ```
 
 > **Note:** Your configuration is stored in a local `.env` file in your project directory. This file contains your OpenAI API key and should not be committed to version control. The `.env` file is automatically added to `.gitignore` to prevent accidental commits.
@@ -90,33 +120,59 @@ This will:
    - Implementation details
    - Technical decisions
    - Proper markdown formatting (headings, lists, code blocks)
-3. Save the approved PR description to a `PR_DESCRIPTION.md` file in your current directory
+3. Save the approved PR description to a `PR_DESCRIPTION.md` file in your current directory (or your configured output file)
 
 You can customize the output destination:
 
 ```bash
 # Save to a specific filename
-aicommit -p --file my_pr.md
+aicommit -p -f my_pr.md
+# or
+aicommit -p --pr-output-file my_pr.md
 
 # Copy to clipboard instead of saving to a file
-aicommit -p --clipboard
+aicommit -p -c
+# or
+aicommit -p --pr-output-clipboard
 
 # Both save to file and copy to clipboard
-aicommit -p --file --clipboard
+aicommit -p -f -c
 
 # Save to a specific file and copy to clipboard
-aicommit -p --file custom_pr.md --clipboard
+aicommit -p -f custom_pr.md -c
+```
+
+You can also use GitHub PR templates:
+
+```bash
+# Use a template for this run only (interactive selection if multiple exist)
+aicommit -p -t
+# or
+aicommit -p --pr-template
+
+# Use a specific template file
+aicommit -p -t .github/PULL_REQUEST_TEMPLATE/feature.md
 ```
 
 ## Command-Line Options
 
+### Basic options
 - `-v`, `--version`: Show the current version
-- `--key`: Set or update your OpenAI API key
-- `--model`: Set or update the OpenAI model
-- `--base-branch`: Set or update your base branch name
-- `-p [BASE_REF]`, `--pr-description [BASE_REF]`: Generate a PR description, optionally specifying a base reference (branch name or commit SHA)
-- `--file [FILENAME]`: Save PR description to a file (default: `PR_DESCRIPTION.md`)
-- `--clipboard`: Copy PR description to clipboard
+- `-h`, `--help`: Show help message
+
+### PR Description options
+- `-p [BASE_REF]`, `--pr-description [BASE_REF]`: Generate a PR description, optionally specify a base ref (branch name or commit SHA)
+- `-f [FILENAME]`, `--pr-output-file [FILENAME]`: Save PR description to a file (default: `PR_DESCRIPTION.md`)
+- `-c`, `--pr-output-clipboard`: Copy PR description to clipboard
+- `-t [TEMPLATE_PATH]`, `--pr-template [TEMPLATE_PATH]`: Use GitHub PR template in generation, optionally specify a custom template path
+
+### Configuration options
+- `--config`: Show current configuration
+- `--set-key [KEY]`: Set OpenAI API key
+- `--set-model [MODEL]`: Set OpenAI model
+- `--set-base-branch [BASE_BRANCH]`: Set default base branch name
+- `--set-pr-output-file [FILENAME]`: Set default PR output filename
+- `--set-pr-template [TEMPLATE_PATH]`: Set default PR template path
 
 ## Security
 
