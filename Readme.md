@@ -1,5 +1,9 @@
 # AI Commit
 
+[![Ruby Build](https://img.shields.io/github/actions/workflow/status/ej/aicommit/test.yml?branch=main&label=Ruby%20Build)](https://github.com/jackal998/aicommit/actions/workflows/test.yml)
+[![Gem Version](https://badge.fury.io/rb/aicommit.svg)](https://rubygems.org/gems/aicommit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A command-line tool that uses AI to generate commit messages and PR descriptions from your code changes.
 
 ## Features
@@ -185,7 +189,7 @@ AI Commit includes several security features:
 ## Requirements
 
 - Git repository
-- Ruby 2.7 or higher
+- Ruby 2.7 or higher (2.7, 3.0, 3.1, 3.2, 3.3, head)
 - OpenAI API key
 
 ## Development
