@@ -1,3 +1,7 @@
+# required dependencies for ruby >= 3.3.7
+require "logger"
+require "ostruct"
+
 require_relative "commit/generator"
 require_relative "pr/generator"
 require_relative "common/utils/ignore_file_checker"
