@@ -50,9 +50,14 @@ RSpec.describe Common::Envs::BaseBranch do
   end
 
   describe "#update!" do
-    it "prompts the user for input, validates and saves token to the env file" do
-      allow(File).to receive(:write)
+    let(:existing_env_content) { "#{described_class::KEY}=old_branch" }
 
+    before do
+      allow(File).to receive(:read).and_return(existing_env_content)
+      allow(File).to receive(:write)
+    end
+
+    it "prompts the user for input, validates and saves token to the env file" do
       expect($stdout).to receive(:puts).with("Please enter your base branch name (or 'q' to quit):")
       expect(subject).to receive(:gets).and_return(base_branch)
       expect(subject).to receive(:validate_branch_name!).with(base_branch).and_return(base_branch)

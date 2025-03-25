@@ -237,33 +237,27 @@ RSpec.describe PR::Generator do
       let(:nested_dir) { File.dirname(nested_filename) }
 
       it "creates the directory and writes the file" do
-        # Setup
         allow(File).to receive(:directory?).with(nested_dir).and_return(false)
         allow(FileUtils).to receive(:mkdir_p).with(nested_dir)
         file_double = double("file")
 
-        # Expectations
         expect(FileUtils).to receive(:mkdir_p).with(nested_dir)
         expect(File).to receive(:open).with(nested_filename, "w").and_yield(file_double)
         expect(file_double).to receive(:puts).with(content)
 
-        # Execute and verify
         expect { subject.send(:save_to_file, content, nested_filename) }.to output(/Created directory/).to_stdout
       end
 
       it "handles directory creation errors" do
-        # Setup
         allow(File).to receive(:directory?).with(nested_dir).and_return(false)
         error = StandardError.new("Permission denied")
         allow(FileUtils).to receive(:mkdir_p).with(nested_dir).and_raise(error)
 
-        # Prepare for the fallback filename
         base_filename = File.basename(nested_filename)
         file_double = double("file")
         allow(File).to receive(:open).with(base_filename, "w").and_yield(file_double)
         expect(file_double).to receive(:puts).with(content)
 
-        # Execute and verify
         output = capture_stdout { subject.send(:save_to_file, content, nested_filename) }
         expect(output).to include("Error creating directory")
         expect(output).to include("Saving PR description to current directory instead")
@@ -369,23 +363,17 @@ RSpec.describe PR::Generator do
       allow(client_double).to receive(:instance_variable_set)
 
       result = subject.send(:custom_ai_client_with_template, template_path)
-      expect(result).to eq(client_double)
 
-      # Test that the instance variable was set
+      expect(result).to eq(client_double)
       expect(client_double).to have_received(:instance_variable_set).with(:@_custom_template, template_path)
     end
 
     it "defines a get_pr_template method that reads the template file" do
-      # This is a direct test of the monkey-patched method's behavior
-      # We need to actually monkey-patch a test object to verify behavior
-
       test_client = Object.new
 
-      # Create our own implementation of custom_ai_client_with_template
       custom_client = Common::AiClient.new
       allow(Common::AiClient).to receive(:new).and_return(custom_client)
 
-      # Apply the actual monkey patching to our test client
       def test_client.get_pr_template
         if File.exist?(@_custom_template)
           File.read(@_custom_template)
@@ -394,32 +382,25 @@ RSpec.describe PR::Generator do
 
       test_client.instance_variable_set(:@_custom_template, template_path)
 
-      # Test when the file exists
       allow(File).to receive(:exist?).with(template_path).and_return(true)
       allow(File).to receive(:read).with(template_path).and_return(template_content)
       expect(test_client.get_pr_template).to eq(template_content)
 
-      # Test when the file doesn't exist
       allow(File).to receive(:exist?).with(template_path).and_return(false)
       expect(test_client.get_pr_template).to be_nil
     end
 
     it "runs the actual monkey-patched code" do
-      # Create a real PR::Generator instance
       generator = described_class.new
 
-      # When we call the method, it should create a client with a monkey-patched method
       custom_client = generator.send(:custom_ai_client_with_template, template_path)
 
-      # Now explicitly test the monkey-patched method on the returned client
-      # First, test the case when file exists (using expect to ensure the code is executed)
       expect(File).to receive(:exist?).with(template_path).and_return(true)
       expect(File).to receive(:read).with(template_path).and_return(template_content)
 
       result = custom_client.get_pr_template
       expect(result).to eq(template_content)
 
-      # Then test when the file doesn't exist
       expect(File).to receive(:exist?).with(template_path).and_return(false)
       result = custom_client.get_pr_template
       expect(result).to be_nil
@@ -436,7 +417,7 @@ RSpec.describe PR::Generator do
       end
 
       it "handles OpenAI::Error" do
-        expect(Aicommit).to receive(:handle_error)
+        expect(Aicommit).to receive(:handle_error).with(an_instance_of(OpenAI::Error))
         subject.run
       end
     end
@@ -445,21 +426,17 @@ RSpec.describe PR::Generator do
       subject { described_class.new(commit_sha, {file: true}) }
 
       before do
-        # Mock exit to prevent the test from exiting
-        allow(subject).to receive(:exit)
-
         allow(git_client).to receive(:diff_from_branch_root).and_return(diff)
         allow(ai_client).to receive(:get_pr_description).and_raise(StandardError.new("Unexpected error"))
       end
 
       it "catches and displays generic errors" do
-        expect { subject.run }.to output(/Error: Unexpected error/).to_stdout
-        expect(subject).to have_received(:exit).with(1)
+        expect(Aicommit).to receive(:handle_error).with(an_instance_of(StandardError))
+        subject.run
       end
     end
   end
 
-  # Helper method to capture stdout for testing
   def capture_stdout
     original_stdout = $stdout
     $stdout = StringIO.new

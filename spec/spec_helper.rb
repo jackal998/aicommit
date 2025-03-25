@@ -1,19 +1,34 @@
 require "simplecov"
 require "faker"
+require "pry"
 
 SimpleCov.start do
   add_filter "/spec/"
 
-  # Print uncovered lines
   at_exit do
     SimpleCov.result.format!
-    puts "\nUncovered lines:"
-    SimpleCov.result.files.each do |file|
-      next if (file.covered_percent - 100.0).abs < 0.001
-      puts "\n#{file.filename}:"
-      file.lines.each_with_index do |line, index|
-        next if line.coverage || line.never?
-        puts "  #{index + 1}: #{line.src.strip}"
+
+    checked_files =
+      SimpleCov.result.files.filter_map do |file|
+        next if (file.covered_percent - 100.0).abs < 0.001
+
+        checked_lines =
+          file.lines.filter_map do |line|
+            next if line.covered? || line.never?
+
+            [line.line_number, line.src.strip]
+          end
+
+        [file.filename, checked_lines]
+      end
+
+    if checked_files.any?
+      puts "\nUncovered lines:"
+      checked_files.each do |file, lines|
+        puts "\n#{file}:"
+        lines.each do |line_number, src|
+          puts "  #{line_number}: #{src}"
+        end
       end
     end
   end

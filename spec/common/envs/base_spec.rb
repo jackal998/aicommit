@@ -1,8 +1,5 @@
 require "common/envs/base"
 require "colorize"
-require "simplecov"
-
-SimpleCov.start
 
 # We need a concrete subclass to test the abstract base class
 class TestEnv < Common::Envs::Base

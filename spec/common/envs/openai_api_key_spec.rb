@@ -6,7 +6,6 @@ RSpec.describe Common::Envs::OpenaiApiKey do
   let(:api_token) { "sample_token" }
   let(:ai_client) { instance_double("Common::AiClient") }
   let(:env_path) { described_class::ENV_PATH }
-  let(:existing_env_content) { "#{described_class::KEY}=old_token" }
 
   before do
     allow(File).to receive(:expand_path).and_return("/fakepath")
@@ -51,6 +50,8 @@ RSpec.describe Common::Envs::OpenaiApiKey do
   end
 
   describe "#update!" do
+    let(:existing_env_content) { "#{described_class::KEY}=old_token" }
+
     before do
       allow(File).to receive(:read).and_return(existing_env_content)
       allow(File).to receive(:write)
@@ -68,28 +69,28 @@ RSpec.describe Common::Envs::OpenaiApiKey do
         /\A#{described_class::KEY}=#{api_token}\n\Z/
       )
     end
-  end
 
-  describe "#update! with provided value" do
-    before do
-      allow(File).to receive(:read).and_return(existing_env_content)
-      allow(File).to receive(:write)
-      allow(Common::AiClient).to receive(:new).with(api_token).and_return(ai_client)
-      allow(ai_client).to receive(:verify_api_token!).and_return(true)
-    end
+    context "with provided value" do
+      before do
+        allow(File).to receive(:read).and_return(existing_env_content)
+        allow(File).to receive(:write)
+        allow(Common::AiClient).to receive(:new).with(api_token).and_return(ai_client)
+        allow(ai_client).to receive(:verify_api_token!).and_return(true)
+      end
 
-    it "validates and saves the provided token" do
-      expect(subject).to receive(:validate_token!).with(api_token).and_call_original
-      expect(subject).to receive(:save_to_env!).with(described_class::KEY, api_token)
-      expect($stdout).to receive(:puts).with("AI_COMMIT_OPENAI_API_KEY saved to .env".green)
-      subject.update!(api_token)
-    end
+      it "validates and saves the provided token" do
+        expect(subject).to receive(:validate_token!).with(api_token).and_call_original
+        expect(subject).to receive(:save_to_env!).with(described_class::KEY, api_token)
+        expect($stdout).to receive(:puts).with("AI_COMMIT_OPENAI_API_KEY saved to .env".green)
+        subject.update!(api_token)
+      end
 
-    it "returns nil if validation fails" do
-      allow(ai_client).to receive(:verify_api_token!).and_return(false)
-      expect($stdout).to receive(:puts).with(/The API key could not be verified/).once
-      expect(subject).not_to receive(:save_to_env!)
-      expect(subject.update!(api_token)).to be_nil
+      it "returns nil if validation fails" do
+        allow(ai_client).to receive(:verify_api_token!).and_return(false)
+        expect($stdout).to receive(:puts).with(/The API key could not be verified/).once
+        expect(subject).not_to receive(:save_to_env!)
+        expect(subject.update!(api_token)).to be_nil
+      end
     end
   end
 
