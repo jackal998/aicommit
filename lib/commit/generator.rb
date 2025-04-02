@@ -18,34 +18,44 @@ module Commit
 
     def run
       staged_changes = git_client.staged_changes
-      commit_message = ai_client.get_commit_message(staged_changes)
 
-      loop do
-        puts "Do you want to keep this commit_message? (Y/R/N) (or Q to quit)"
-        puts ""
-        puts "Commit subject: #{commit_message["subject"]}"
-        puts "Description: #{commit_message["description"]}"
-        puts ""
-        case gets.chomp
-        when /^[Yy]$/
-          git_client.commit_all(commit_message)
-          puts "All changes have been successfully committed."
-          exit
-        when /^[Rr]$/
-          puts "Regenerating..."
+      if staged_changes.strip.empty?
+        puts "No staged changes found. Please stage changes using 'git add' before running aicommit.".red
+        exit 1
+      end
+
+      begin
+        commit_message = ai_client.get_commit_message(staged_changes)
+
+        loop do
+          puts "Do you want to use this commit message? (Y/R/Q)".green
+          puts "Y = Yes, commit with this message".blue
+          puts "R = Regenerate message".blue
+          puts "Q = Quit without committing".blue
           puts ""
-          commit_message = ai_client.get_commit_message(staged_changes)
-        when /^[Nn]$/
-          puts "Please enter your new commit_message:"
-          commit_message = gets.chomp
+          puts "Commit subject: ".bold + commit_message["subject"].to_s
+          puts "Description: ".bold + commit_message["description"].to_s
           puts ""
-        when /^[Qq]$/
-          puts "Quit without committing."
-          exit
-        else
-          puts "Invalid command. Please enter Y, N, or Q.".underline
-          puts ""
+
+          case gets.chomp
+          when /^[Yy]$/
+            git_client.commit_all(commit_message)
+            puts "All changes have been successfully committed.".green
+            exit 0
+          when /^[Rr]$/
+            puts "Regenerating...".yellow
+            puts ""
+            commit_message = ai_client.get_commit_message(staged_changes)
+          when /^[Qq]$/
+            puts "Quit without committing.".yellow
+            exit 0
+          else
+            puts "Invalid command. Please enter Y, R, or Q.".red.underline
+            puts ""
+          end
         end
+      rescue => e
+        Aicommit.handle_error(e)
       end
     end
 

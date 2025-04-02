@@ -11,68 +11,124 @@ require_relative "../lib/aicommit"
 require_relative "../lib/aicommit/version"
 
 options = {}
+
 parser = OptionParser.new do |op|
   op.banner = "Usage: aicommit [options]"
 
-  op.on("-p [BASE_REF]", "--pr-description [BASE_REF]", "Generate PR description, optionally specify a base ref (branch name or commit SHA)") do |pr|
-    options[:pr_description] = true
-    options[:pr_base_ref] = pr
+  # Basic usage
+  op.separator ""
+  op.separator "Basic usage:"
+
+  op.on("-v", "--version", "Show version") do
+    options[:version] = true
   end
 
-  op.on("--file [FILENAME]", "Save PR description to a file (default: PR_DESCRIPTION.md)") do |filename|
-    options[:file] = filename || true
+  op.on("-h", "--help", "Show this help message") do
+    puts op
+    exit
   end
 
-  op.on("--clipboard", "Copy PR description to clipboard") do
+  # PR Description generation options
+  op.separator ""
+  op.separator "PR Description options:"
+
+  op.on("-p [BASE_REF]", "--pr-description [BASE_REF]", 
+        "Generate PR description, optionally specify a base ref (branch name or commit SHA)") do |base_ref|
+    options[:pr_base_ref] = base_ref || true
+  end
+
+  op.on("-f [FILENAME]", "--pr-output-file [FILENAME]", 
+        "Save PR description to a file (default: PR_DESCRIPTION.md)") do |filename|
+    options[:filename] = filename || true
+  end
+
+  op.on("-c", "--pr-output-clipboard", 
+        "Copy PR description to clipboard") do
     options[:clipboard] = true
   end
 
-  op.on("-v", "--version", "Show version") do |v|
-    options[:version] = v
+  op.on("-t [TEMPLATE_PATH]", "--pr-template [TEMPLATE_PATH]", 
+        "Use GitHub PR template in generation, optionally specify a custom template path") do |template_path|
+    options[:template_path] = template_path || true
   end
 
-  op.on("--key", "Set OpenAI API key") do |k|
-    options[:key] = k
+  # Configuration options
+  op.separator ""
+  op.separator "Configuration options:"
+
+  op.on("--config", "Show current configuration") do
+    options[:show_config] = true
   end
 
-  op.on("--model", "Set OpenAI model") do |m|
-    options[:model] = m
+  op.on("--set-key [KEY]", "Set OpenAI API key") do |key|
+    options[:set_key] = key || true
   end
 
-  op.on("--base-branch", "Set base branch name") do |bb|
-    options[:base_branch] = bb
+  op.on("--set-model [MODEL]", "Set OpenAI model") do |model|
+    options[:set_model] = model || true
+  end
+
+  op.on("--set-base-branch [BASE_BRANCH]", "Set default base branch name") do |base_branch|
+    options[:set_base_branch] = base_branch || true
+  end
+
+  op.on("--set-pr-output-file [FILENAME]", "Set default PR output filename") do |pr_output_file|
+    options[:set_pr_output_file] = pr_output_file || true
+  end
+
+  op.on("--set-pr-template [TEMPLATE_PATH]", "Set default PR template path") do |template_path|
+    options[:set_pr_template] = template_path || true
   end
 end
 
 begin
   parser.parse!
-rescue OptionParser::InvalidOption
-  puts "Invalid option, please see `aicommit -h` for help"
-  puts parser.help
-  exit
+rescue OptionParser::InvalidOption => e
+  puts "Error: #{e.message}".red
+  puts "Please see `aicommit -h` for help"
+  exit 1
 end
 
 Aicommit.ensure_env_in_ignore_file
 
 if options[:version]
   puts Aicommit::VERSION
-elsif options[:key]
-  Aicommit.set_openai_api_key
-elsif options[:model]
+elsif options[:show_config]
+  Aicommit.show_config
+elsif options[:set_key]
+  # Only pass the key value if it's not just a boolean
+  Aicommit.set_openai_api_key(options[:set_key] != true ? options[:set_key] : nil)
+elsif options[:set_model]
+  # Only pass the model value if it's not just a boolean
   current_selected_model = Common::Envs::SelectedModel.new.fetch
   if current_selected_model
     puts "Current model: #{current_selected_model}"
     puts ""
   end
+  
+  Aicommit.set_selected_model(options[:set_model] != true ? options[:set_model] : nil)
+elsif options[:set_base_branch]
+  # Only pass the branch value if it's not just a boolean
+  Aicommit.set_base_branch(options[:set_base_branch] != true ? options[:set_base_branch] : nil)
+elsif options[:set_pr_output_file]
+  # Only pass the filename value if it's not just a boolean
+  Aicommit.set_pr_output_file(options[:set_pr_output_file] != true ? options[:set_pr_output_file] : nil)
+elsif options[:set_pr_template]
+  # Only pass the template path value if it's not just a boolean
+  template_path = options[:set_pr_template] != true ? options[:set_pr_template] : nil
+  Aicommit.set_pr_template(template_path)
+elsif options[:pr_base_ref]
+  # Prepare options for PR generation
+  pr_options = {
+    file: options[:filename],
+    clipboard: options[:clipboard],
+    template: options[:template_path]
+  }
 
-  Aicommit.set_selected_model
-elsif options[:base_branch]
-  Aicommit.set_base_branch
-elsif options[:pr_description]
   # By default, save to file if neither option is specified
-  options[:file] = true if !options[:file] && !options[:clipboard]
+  pr_options[:file] = true if !pr_options[:file] && !pr_options[:clipboard]
 
-  Aicommit.generate_pr_description(options[:pr_base_ref], options)
+  Aicommit.generate_pr_description(options[:pr_base_ref] != true ? options[:pr_base_ref] : nil, pr_options)
 elsif ARGV.empty?
   Aicommit.run
 else

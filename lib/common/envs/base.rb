@@ -17,10 +17,10 @@ module Common
         ENV[self.class::KEY] || update!
       end
 
-      def update!
-        env_value = get_env_value!
+      def update!(provided_value = nil)
+        env_value = provided_value || get_env_value!
         save_to_env!(self.class::KEY, env_value)
-        puts "saved to .env".green
+        puts "#{self.class::KEY} saved to .env".green
         env_value
       end
 

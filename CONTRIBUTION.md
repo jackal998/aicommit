@@ -43,6 +43,40 @@ We welcome and encourage contributions from everyone. Here are the guidelines if
   - `openai_api_key.rb`: OpenAI API key management
   - `selected_model.rb`: OpenAI model selection
   - `base_branch.rb`: Base branch configuration
+  - `pr_template.rb`: PR template management
+  - `pr_output_file.rb`: PR output file configuration
+
+## Error Handling
+
+The application uses a structured approach to error handling:
+
+1. Centralized error handling through `Aicommit.handle_error`
+2. Specific error types with the `Common::AiClient::ApiError` class
+3. Categorized API errors (authentication, rate limit, server errors)
+4. Context-aware error messages with helpful suggestions
+5. Consistent use of colored output for better user experience
+
+When adding new features, ensure errors are properly handled and reported back to the user with meaningful messages.
+
+## Testing
+
+The project uses RSpec for testing. When adding new features or fixing bugs, please ensure:
+
+1. All existing tests pass: `bundle exec rspec`
+2. New features are covered by appropriate tests
+3. Test coverage is maintained or improved
+
+The test suite includes:
+- Unit tests for individual components
+- Integration tests for end-to-end functionality
+- Test helpers like `capture_stdout` for testing console output
+- Mock objects and doubles to isolate components during testing
+- Faker gem for generating test data
+
+Use proper test structure:
+- Arrange: Set up the test data and environment
+- Act: Perform the action being tested
+- Assert: Verify the results
 
 ## Adding Features
 
@@ -52,6 +86,16 @@ When adding new features, please:
 2. Document the feature in the README.md
 3. Ensure all existing tests pass
 4. Follow the existing code style and patterns
+5. Implement proper error handling
+6. Consider backward compatibility
+
+### Feature Workflow
+
+1. Discuss the feature in an issue before implementation
+2. Create a new branch for the feature
+3. Implement the feature with appropriate tests
+4. Update documentation
+5. Submit a pull request
 
 ## PR Title Format
 

@@ -51,6 +51,82 @@ describe Aicommit do
     end
   end
 
+  describe "#set_pr_template" do
+    let(:pr_template) { instance_double(Common::Envs::PrTemplate) }
+    let(:custom_path) { "custom_template.md" }
+
+    it "delegates to Common::Envs::PrTemplate.update!" do
+      expect(Common::Envs::PrTemplate).to receive(:new).with(custom_path).and_return(pr_template)
+      expect(pr_template).to receive(:update!)
+      described_class.set_pr_template(custom_path)
+    end
+
+    it "works without a custom path" do
+      expect(Common::Envs::PrTemplate).to receive(:new).with(nil).and_return(pr_template)
+      expect(pr_template).to receive(:update!)
+      described_class.set_pr_template
+    end
+  end
+
+  describe "#set_pr_output_file" do
+    let(:pr_output_file) { instance_double(Common::Envs::PrOutputFile) }
+    let(:filename) { "custom_output.md" }
+
+    it "delegates to Common::Envs::PrOutputFile.update!" do
+      expect(Common::Envs::PrOutputFile).to receive(:new).and_return(pr_output_file)
+      expect(pr_output_file).to receive(:update!).with(filename)
+      described_class.set_pr_output_file(filename)
+    end
+
+    it "works without a filename" do
+      expect(Common::Envs::PrOutputFile).to receive(:new).and_return(pr_output_file)
+      expect(pr_output_file).to receive(:update!).with(nil)
+      described_class.set_pr_output_file
+    end
+  end
+
+  describe "#show_config" do
+    let(:api_key) { "sk-abcdefghijklmnopqrstuvwxyz1234" }
+    let(:model) { "gpt-4" }
+    let(:branch) { "main" }
+    let(:template) { "template.md" }
+    let(:output_file) { "output.md" }
+
+    before do
+      allow_any_instance_of(Common::Envs::OpenaiApiKey).to receive(:fetch).and_return(api_key)
+      allow_any_instance_of(Common::Envs::SelectedModel).to receive(:fetch).and_return(model)
+      allow_any_instance_of(Common::Envs::BaseBranch).to receive(:fetch).and_return(branch)
+      allow_any_instance_of(Common::Envs::PrTemplate).to receive(:fetch).and_return(template)
+      allow_any_instance_of(Common::Envs::PrOutputFile).to receive(:fetch).and_return(output_file)
+    end
+
+    it "outputs the current configuration" do
+      expect { described_class.show_config }.to output(/Current Configuration/).to_stdout
+      expect { described_class.show_config }.to output(/OpenAI API Key: sk-...1234/).to_stdout
+      expect { described_class.show_config }.to output(/Selected Model: #{model}/).to_stdout
+      expect { described_class.show_config }.to output(/Base Branch: #{branch}/).to_stdout
+      expect { described_class.show_config }.to output(/PR Template: #{template}/).to_stdout
+      expect { described_class.show_config }.to output(/PR Output File: #{output_file}/).to_stdout
+    end
+
+    it "handles missing configuration values" do
+      allow_any_instance_of(Common::Envs::OpenaiApiKey).to receive(:fetch).and_return(nil)
+      allow_any_instance_of(Common::Envs::SelectedModel).to receive(:fetch).and_return(nil)
+
+      expect { described_class.show_config }.to output(/OpenAI API Key: Not set/).to_stdout
+      expect { described_class.show_config }.to output(/Selected Model: Not set/).to_stdout
+    end
+  end
+
+  describe "#handle_error" do
+    let(:error) { StandardError.new(Faker::Lorem.word) }
+
+    it "handles errors" do
+      expect { described_class.handle_error(error) }.to output(/Error: #{error.message}/).to_stdout
+        .and raise_error(SystemExit)
+    end
+  end
+
   describe "#ensure_env_in_ignore_file" do
     let(:ignore_file_checker) { instance_double(Common::Utils::IgnoreFileChecker) }
 
